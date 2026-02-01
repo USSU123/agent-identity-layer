@@ -361,7 +361,7 @@ router.get('/:id/workers', async (req: Request, res: Response) => {
     const { data: workers, error } = await supabase
       .from('agents')
       .select('*')
-      .filter('metadata->parent_did', 'eq', agent.did);
+      .filter('metadata->>parent_did', 'eq', agent.did);
 
     if (error) {
       return res.status(500).json({ error: 'Failed to fetch workers' });
