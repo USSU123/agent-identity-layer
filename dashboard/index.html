@@ -6,12 +6,7 @@
   <title>Agent Identity - Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --bg-page: #09090b;
       --bg-card: #18181b;
@@ -32,829 +27,162 @@
       --font-sans: 'Inter', system-ui, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
     }
-
-    body {
-      font-family: var(--font-sans);
-      background: var(--bg-page);
-      color: var(--text-primary);
-      min-height: 100vh;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 240px;
-      height: 100vh;
-      background: var(--bg-card);
-      border-right: 1px solid var(--border);
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      z-index: 100;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 2rem;
-    }
-
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-muted));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-    }
-
-    .logo-text {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    .nav {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.65rem 0.75rem;
-      border-radius: 8px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: all 0.15s ease;
-      cursor: pointer;
-    }
-
-    .nav-item:hover {
-      background: var(--bg-elevated);
-      color: var(--text-primary);
-    }
-
-    .nav-item.active {
-      background: var(--primary-glow);
-      color: var(--primary);
-    }
-
-    .nav-icon {
-      width: 20px;
-      text-align: center;
-    }
-
-    .nav-section {
-      margin-top: 1.5rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      padding-left: 0.75rem;
-    }
-
-    .sidebar-footer {
-      margin-top: auto;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .api-status {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--text-muted);
-    }
-
-    .status-dot.online {
-      background: var(--success);
-      box-shadow: 0 0 8px var(--success);
-    }
-
-    .status-dot.offline {
-      background: var(--error);
-    }
-
-    /* Main content */
-    .main {
-      margin-left: 240px;
-      padding: 2rem 3rem;
-      min-height: 100vh;
-    }
-
-    .page-header {
-      margin-bottom: 2rem;
-    }
-
-    .page-title {
-      font-size: 1.75rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .page-subtitle {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-    }
-
-    /* Stats grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    @media (max-width: 1200px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem;
-      transition: all 0.2s ease;
-    }
-
-    .stat-card:hover {
-      border-color: var(--border-hover);
-      transform: translateY(-2px);
-    }
-
-    .stat-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-    }
-
-    .stat-icon {
-      width: 36px;
-      height: 36px;
-      background: var(--bg-elevated);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-    }
-
-    .stat-change {
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      font-weight: 500;
-    }
-
-    .stat-change.positive {
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--success);
-    }
-
-    .stat-change.negative {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--error);
-    }
-
-    .stat-value {
-      font-size: 1.75rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .stat-label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    /* Content grid */
-    .content-grid {
-      display: grid;
-      grid-template-columns: 1fr 350px;
-      gap: 1.5rem;
-    }
-
-    @media (max-width: 1100px) {
-      .content-grid { grid-template-columns: 1fr; }
-    }
-
-    /* Agents table */
-    .table-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .table-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .table-title {
-      font-weight: 600;
-      font-size: 1rem;
-    }
-
-    .search-input {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.5rem 0.75rem;
-      padding-left: 2rem;
-      color: var(--text-primary);
-      font-size: 0.85rem;
-      width: 200px;
-      font-family: var(--font-sans);
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .search-input::placeholder {
-      color: var(--text-muted);
-    }
-
-    .search-wrapper {
-      position: relative;
-    }
-
-    .search-wrapper::before {
-      content: '🔍';
-      position: absolute;
-      left: 0.6rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.8rem;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      text-align: left;
-      padding: 0.75rem 1.25rem;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      font-weight: 500;
-      border-bottom: 1px solid var(--border);
-    }
-
-    td {
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.9rem;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    tbody tr {
-      cursor: pointer;
-      transition: background 0.15s ease;
-    }
-
-    tbody tr:hover td {
-      background: var(--bg-elevated);
-    }
-
-    .agent-cell {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .agent-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .agent-dot.active { background: var(--success); }
-    .agent-dot.pending { background: var(--warning); }
-    .agent-dot.inactive { background: var(--text-muted); }
-
-    .agent-name {
-      font-weight: 500;
-    }
-
-    .did-cell {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-
-    .rep-cell {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .rep-stars {
-      color: #fbbf24;
-      letter-spacing: -2px;
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-
-    .status-badge.verified {
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--success);
-    }
-
-    .status-badge.pending {
-      background: rgba(245, 158, 11, 0.15);
-      color: var(--warning);
-    }
-
-    .action-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 0.35rem 0.65rem;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      font-family: var(--font-sans);
-    }
-
-    .action-btn:hover {
-      background: var(--bg-elevated);
-      color: var(--text-primary);
-      border-color: var(--border-hover);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--text-muted);
-    }
-
-    .empty-state p {
-      margin-bottom: 1rem;
-    }
-
-    /* Right sidebar */
-    .right-sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .quick-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem;
-    }
-
-    .quick-title {
-      font-weight: 600;
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-    }
-
-    .quick-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .quick-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      font-family: var(--font-sans);
-    }
-
-    .quick-btn:hover {
-      border-color: var(--primary);
-      background: var(--primary-glow);
-    }
-
-    .quick-btn.primary {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: var(--bg-page);
-      font-weight: 500;
-    }
-
-    .quick-btn.primary:hover {
-      background: var(--primary-muted);
-    }
-
-    /* Activity feed */
-    .activity-list {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .activity-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .activity-item:last-child {
-      border-bottom: none;
-    }
-
-    .activity-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      flex-shrink: 0;
-    }
-
-    .activity-icon.verify {
-      background: rgba(34, 197, 94, 0.15);
-    }
-
-    .activity-icon.register {
-      background: rgba(59, 130, 246, 0.15);
-    }
-
-    .activity-icon.rep {
-      background: rgba(251, 191, 36, 0.15);
-    }
-
-    .activity-content {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .activity-text {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-
-    .activity-text strong {
-      color: var(--text-primary);
-      font-weight: 500;
-    }
-
-    .activity-time {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
-    }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      width: 100%;
-      max-width: 480px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .modal-title {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    .modal-close {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.5rem;
-      cursor: pointer;
-      line-height: 1;
-      padding: 0.25rem;
-    }
-
-    .modal-close:hover {
-      color: var(--text-primary);
-    }
-
-    .modal-body {
-      padding: 1.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      color: var(--text-secondary);
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-primary);
-      font-family: var(--font-sans);
-      font-size: 0.9rem;
-      transition: border-color 0.15s ease;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .form-group input::placeholder,
-    .form-group textarea::placeholder {
-      color: var(--text-muted);
-    }
-
-    .form-group small {
-      display: block;
-      margin-top: 0.35rem;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
-      padding: 1rem 1.5rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .btn {
-      padding: 0.65rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      font-family: var(--font-sans);
-    }
-
-    .btn-secondary {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-    }
-
-    .btn-secondary:hover {
-      background: var(--border);
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      border: 1px solid var(--primary);
-      color: var(--bg-page);
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-muted);
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* Result display */
-    .result-box {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-top: 1rem;
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .result-box.success {
-      border-color: var(--success);
-      background: rgba(34, 197, 94, 0.1);
-    }
-
-    .result-box.error {
-      border-color: var(--error);
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--error);
-    }
-
-    /* Agent detail modal */
-    .detail-grid {
-      display: grid;
-      gap: 0.75rem;
-    }
-
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.65rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .detail-row:last-child {
-      border-bottom: none;
-    }
-
-    .detail-label {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    .detail-value {
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      text-align: right;
-      max-width: 60%;
-      word-break: break-all;
-    }
-
-    .detail-section {
-      margin-top: 1.5rem;
-    }
-
-    .detail-section h4 {
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      color: var(--text-secondary);
-    }
-
-    .did-doc-pre {
-      background: var(--bg-input);
-      padding: 1rem;
-      border-radius: 8px;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      overflow-x: auto;
-      max-height: 200px;
-    }
-
-    /* Toast notifications */
-    .toast-container {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      z-index: 2000;
-    }
-
-    .toast {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
+    body { font-family: var(--font-sans); background: var(--bg-page); color: var(--text-primary); min-height: 100vh; }
+    
+    .sidebar { position: fixed; left: 0; top: 0; width: 240px; height: 100vh; background: var(--bg-card); border-right: 1px solid var(--border); padding: 1.5rem; display: flex; flex-direction: column; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-muted)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .logo-text { font-weight: 600; font-size: 1.1rem; }
+    .nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.75rem; border-radius: 8px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: all 0.15s ease; cursor: pointer; }
+    .nav-item:hover { background: var(--bg-elevated); color: var(--text-primary); }
+    .nav-item.active { background: var(--primary-glow); color: var(--primary); }
+    .nav-icon { width: 20px; text-align: center; }
+    .nav-section { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding-left: 0.75rem; }
+    .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .api-status { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.8rem; color: var(--text-muted); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+    .status-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .status-dot.offline { background: var(--error); }
+
+    .main { margin-left: 240px; padding: 2rem 3rem; min-height: 100vh; }
+    .page-header { margin-bottom: 2rem; }
+    .page-title { font-size: 1.75rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .page-subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; transition: all 0.2s ease; }
+    .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .stat-icon { width: 36px; height: 36px; background: var(--bg-elevated); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .stat-change { font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 500; }
+    .stat-change.positive { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .stat-change.negative { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+    .stat-value { font-size: 1.75rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+
+    .content-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; }
+    @media (max-width: 1100px) { .content-grid { grid-template-columns: 1fr; } }
+
+    .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
+    .table-title { font-weight: 600; font-size: 1rem; }
+    .search-input { background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.75rem; padding-left: 2rem; color: var(--text-primary); font-size: 0.85rem; width: 200px; font-family: var(--font-sans); }
+    .search-input:focus { outline: none; border-color: var(--primary); }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-wrapper { position: relative; }
+    .search-wrapper::before { content: '🔍'; position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); font-size: 0.8rem; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 0.75rem 1.25rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+    td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr { cursor: pointer; transition: background 0.15s ease; }
+    tbody tr:hover td { background: var(--bg-elevated); }
+
+    .agent-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .agent-avatar { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+    .agent-info { display: flex; flex-direction: column; }
+    .agent-name { font-weight: 500; }
+    .agent-type { font-size: 0.75rem; color: var(--text-muted); }
+    .did-cell { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); }
+    .rep-cell { display: flex; align-items: center; gap: 0.5rem; }
+    .rep-bar { width: 60px; height: 6px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; }
+    .rep-fill { height: 100%; background: var(--primary); border-radius: 3px; }
+    .rep-score { font-size: 0.85rem; font-weight: 500; }
+    .status-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 500; }
+    .status-badge.main { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+    .status-badge.worker { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+    .action-btn { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s ease; font-family: var(--font-sans); }
+    .action-btn:hover { background: var(--bg-elevated); color: var(--text-primary); border-color: var(--border-hover); }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+    .empty-state p { margin-bottom: 1rem; }
+
+    .right-sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+    .quick-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    .quick-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 1rem; }
+    .quick-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+    .quick-btn { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 8px; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); font-size: 0.9rem; cursor: pointer; transition: all 0.15s ease; font-family: var(--font-sans); }
+    .quick-btn:hover { border-color: var(--primary); background: var(--primary-glow); }
+    .quick-btn.primary { background: var(--primary); border-color: var(--primary); color: var(--bg-page); font-weight: 500; }
+    .quick-btn.primary:hover { background: var(--primary-muted); }
+
+    .activity-list { display: flex; flex-direction: column; }
+    .activity-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+    .activity-icon.verify { background: rgba(34, 197, 94, 0.15); }
+    .activity-icon.register { background: rgba(59, 130, 246, 0.15); }
+    .activity-icon.rep { background: rgba(251, 191, 36, 0.15); }
+    .activity-content { flex: 1; min-width: 0; }
+    .activity-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; }
+    .activity-text strong { color: var(--text-primary); font-weight: 500; }
+    .activity-time { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+    .modal-title { font-weight: 600; font-size: 1.1rem; }
+    .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
+    .modal-close:hover { color: var(--text-primary); }
+    .modal-body { padding: 1.5rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-secondary); }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem 1rem; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-family: var(--font-sans); font-size: 0.9rem; transition: border-color 0.15s ease; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-muted); }
+    .form-group small { display: block; margin-top: 0.35rem; font-size: 0.75rem; color: var(--text-muted); }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; padding: 1rem 1.5rem; border-top: 1px solid var(--border); }
+    .btn { padding: 0.65rem 1.25rem; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.15s ease; font-family: var(--font-sans); }
+    .btn-secondary { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-primary { background: var(--primary); border: 1px solid var(--primary); color: var(--bg-page); }
+    .btn-primary:hover { background: var(--primary-muted); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .result-box { background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-top: 1rem; font-family: var(--font-mono); font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; }
+    .result-box.success { border-color: var(--success); background: rgba(34, 197, 94, 0.1); }
+    .result-box.error { border-color: var(--error); background: rgba(239, 68, 68, 0.1); color: var(--error); }
+
+    .detail-grid { display: grid; gap: 0.75rem; }
+    .detail-row { display: flex; justify-content: space-between; padding: 0.65rem 0; border-bottom: 1px solid var(--border); }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: var(--text-muted); font-size: 0.85rem; }
+    .detail-value { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; max-width: 60%; word-break: break-all; }
+    .detail-section { margin-top: 1.5rem; }
+    .detail-section h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-secondary); }
+    .did-doc-pre { background: var(--bg-input); padding: 1rem; border-radius: 8px; font-family: var(--font-mono); font-size: 0.75rem; overflow-x: auto; max-height: 200px; }
+
+    .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; z-index: 2000; }
+    .toast { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     .toast.success { border-left: 3px solid var(--success); }
     .toast.error { border-left: 3px solid var(--error); }
     .toast.info { border-left: 3px solid var(--info); }
-
     .toast-icon { font-size: 1.1rem; }
     .toast-message { font-size: 0.9rem; }
+
+    .workers-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .worker-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; font-size: 0.85rem; }
+    .worker-item .did { font-family: var(--font-mono); color: var(--text-muted); font-size: 0.75rem; }
   </style>
 </head>
 <body>
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-icon">🔐</div>
       <span class="logo-text">Agent Identity</span>
     </div>
-
     <nav class="nav">
-      <a class="nav-item active">
-        <span class="nav-icon">📊</span>
-        <span>Dashboard</span>
-      </a>
-      <a class="nav-item" onclick="scrollToAgents()">
-        <span class="nav-icon">🤖</span>
-        <span>Agents</span>
-      </a>
-      <a class="nav-item" onclick="openVerifyModal()">
-        <span class="nav-icon">✅</span>
-        <span>Verifications</span>
-      </a>
-      <a class="nav-item" onclick="scrollToAgents()">
-        <span class="nav-icon">⭐</span>
-        <span>Reputation</span>
-      </a>
-
-      <div class="nav-section">Developer</div>
-      <a class="nav-item" onclick="window.open('/api', '_blank')">
-        <span class="nav-icon">🔑</span>
-        <span>API Docs</span>
-      </a>
-      <a class="nav-item" onclick="window.open('https://github.com', '_blank')">
-        <span class="nav-icon">📖</span>
-        <span>Documentation</span>
-      </a>
-      <a class="nav-item">
-        <span class="nav-icon">📦</span>
-        <span>SDK</span>
-      </a>
-
-      <div class="nav-section">Settings</div>
-      <a class="nav-item">
-        <span class="nav-icon">⚙️</span>
-        <span>Settings</span>
-      </a>
+      <a class="nav-item active"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a class="nav-item" href="/"><span class="nav-icon">🏠</span><span>Landing Page</span></a>
+      <a class="nav-item" onclick="window.open('/api', '_blank')"><span class="nav-icon">🔑</span><span>API Docs</span></a>
+      <div class="nav-section">Actions</div>
+      <a class="nav-item" onclick="openRegisterModal()"><span class="nav-icon">➕</span><span>Register Agent</span></a>
+      <a class="nav-item" onclick="openVerifyModal()"><span class="nav-icon">✅</span><span>Verify Signature</span></a>
     </nav>
-
     <div class="sidebar-footer">
       <div class="api-status">
         <span class="status-dot" id="api-status-dot"></span>
@@ -863,14 +191,12 @@
     </div>
   </aside>
 
-  <!-- Main content -->
   <main class="main">
     <header class="page-header">
       <h1 class="page-title">Dashboard</h1>
-      <p class="page-subtitle">Monitor your agent identity infrastructure</p>
+      <p class="page-subtitle">Monitor agent identities and reputation</p>
     </header>
 
-    <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-header">
@@ -878,37 +204,32 @@
           <span class="stat-change positive" id="stat-agents-change">-</span>
         </div>
         <div class="stat-value" id="stat-agents">-</div>
-        <div class="stat-label">Registered Agents</div>
+        <div class="stat-label">Total Agents</div>
       </div>
       <div class="stat-card">
         <div class="stat-header">
-          <div class="stat-icon">✅</div>
-          <span class="stat-change positive" id="stat-verifications-change">-</span>
+          <div class="stat-icon">👥</div>
         </div>
-        <div class="stat-value" id="stat-verifications">-</div>
-        <div class="stat-label">Verifications</div>
+        <div class="stat-value" id="stat-workers">-</div>
+        <div class="stat-label">Workers</div>
       </div>
       <div class="stat-card">
         <div class="stat-header">
           <div class="stat-icon">⭐</div>
-          <span class="stat-change positive" id="stat-reputation-change">-</span>
         </div>
         <div class="stat-value" id="stat-reputation">-</div>
         <div class="stat-label">Avg Reputation</div>
       </div>
       <div class="stat-card">
         <div class="stat-header">
-          <div class="stat-icon">🌐</div>
-          <span class="stat-change positive" id="stat-events-change">-</span>
+          <div class="stat-icon">📈</div>
         </div>
         <div class="stat-value" id="stat-events">-</div>
-        <div class="stat-label">Recent Events</div>
+        <div class="stat-label">Total Events</div>
       </div>
     </div>
 
-    <!-- Content grid -->
     <div class="content-grid">
-      <!-- Agents table -->
       <div class="table-card" id="agents-table">
         <div class="table-header">
           <span class="table-title">Registered Agents</span>
@@ -916,50 +237,31 @@
             <input type="text" class="search-input" id="search-input" placeholder="Search agents..." oninput="filterAgents()">
           </div>
         </div>
-        <div id="agents-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Agent</th>
-                <th>DID</th>
-                <th>Reputation</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="agents-tbody">
-              <tr>
-                <td colspan="5">
-                  <div class="empty-state">Loading agents...</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>DID</th>
+              <th>Reputation</th>
+              <th>Type</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="agents-tbody">
+            <tr><td colspan="5"><div class="empty-state">Loading agents...</div></td></tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- Right sidebar -->
       <div class="right-sidebar">
-        <!-- Quick actions -->
         <div class="quick-card">
           <div class="quick-title">Quick Actions</div>
           <div class="quick-actions">
-            <button class="quick-btn primary" onclick="openRegisterModal()">
-              <span>➕</span>
-              <span>Register Agent</span>
-            </button>
-            <button class="quick-btn" onclick="openVerifyModal()">
-              <span>🔍</span>
-              <span>Verify Agent</span>
-            </button>
-            <button class="quick-btn" onclick="window.open('/api', '_blank')">
-              <span>🔑</span>
-              <span>View API Docs</span>
-            </button>
+            <button class="quick-btn primary" onclick="openRegisterModal()"><span>➕</span><span>Register Agent</span></button>
+            <button class="quick-btn" onclick="openVerifyModal()"><span>🔍</span><span>Verify Agent</span></button>
+            <button class="quick-btn" onclick="loadAgents(); loadStats(); loadActivity()"><span>🔄</span><span>Refresh Data</span></button>
           </div>
         </div>
-
-        <!-- Activity feed -->
         <div class="quick-card">
           <div class="quick-title">Recent Activity</div>
           <div class="activity-list" id="activity-feed">
@@ -981,18 +283,23 @@
         <div class="modal-body">
           <div class="form-group">
             <label>Agent Name *</label>
-            <input type="text" id="reg-name" placeholder="e.g., Nova, Atlas, Echo" required>
-            <small>A unique name for your agent</small>
+            <input type="text" id="reg-name" placeholder="e.g., Scout, Nova, Echo" required>
           </div>
           <div class="form-group">
-            <label>Owner ID</label>
-            <input type="text" id="reg-owner" placeholder="e.g., user@example.com or DID">
-            <small>Optional: Link this agent to an owner identity</small>
+            <label>Agent Type</label>
+            <select id="reg-type">
+              <option value="main">Main Agent</option>
+              <option value="worker">Worker (Sub-Agent)</option>
+            </select>
+          </div>
+          <div class="form-group" id="parent-field" style="display:none;">
+            <label>Parent DID *</label>
+            <input type="text" id="reg-parent" placeholder="did:agent:...">
+            <small>The main agent this worker belongs to</small>
           </div>
           <div class="form-group">
-            <label>Metadata (JSON)</label>
-            <textarea id="reg-metadata" rows="3" placeholder='{"type": "assistant", "version": "1.0"}'></textarea>
-            <small>Optional: Additional data about your agent</small>
+            <label>Owner</label>
+            <input type="text" id="reg-owner" placeholder="e.g., Sean, Company Name">
           </div>
           <div id="register-result"></div>
         </div>
@@ -1014,8 +321,8 @@
       <form id="verify-form" onsubmit="verifyAgent(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label>Agent ID or DID *</label>
-            <input type="text" id="verify-agent" placeholder="did:agent:... or UUID" required>
+            <label>Agent DID *</label>
+            <input type="text" id="verify-agent" placeholder="did:agent:..." required>
           </div>
           <div class="form-group">
             <label>Message *</label>
@@ -1023,42 +330,38 @@
           </div>
           <div class="form-group">
             <label>Signature *</label>
-            <input type="text" id="verify-signature" placeholder="Hex signature">
+            <input type="text" id="verify-signature" placeholder="Hex signature" required>
           </div>
           <div id="verify-result"></div>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal('verify-modal')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Verify Signature</button>
+          <button type="submit" class="btn btn-primary">Verify</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Agent Detail Modal -->
+  <!-- Detail Modal -->
   <div class="modal-overlay" id="detail-modal">
     <div class="modal" style="max-width: 560px;">
       <div class="modal-header">
         <span class="modal-title" id="detail-title">Agent Details</span>
         <button class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
       </div>
-      <div class="modal-body" id="detail-content">
-        Loading...
-      </div>
+      <div class="modal-body" id="detail-content">Loading...</div>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal('detail-modal')">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast Container -->
   <div class="toast-container" id="toast-container"></div>
 
   <script>
     const API = '';
     let allAgents = [];
 
-    // ========== Utility Functions ==========
     function escapeHtml(str) {
       if (!str) return '';
       const div = document.createElement('div');
@@ -1068,56 +371,37 @@
 
     function truncateDID(did) {
       if (!did) return '-';
-      if (did.length <= 20) return did;
-      return did.slice(0, 15) + '...' + did.slice(-5);
-    }
-
-    function getStars(score) {
-      const normalized = Math.min(5, Math.max(0, score / 20)); // Normalize to 5 stars
-      const full = Math.floor(normalized);
-      const empty = 5 - full;
-      return '★'.repeat(full) + '☆'.repeat(empty);
+      if (did.length <= 24) return did;
+      return did.slice(0, 16) + '...' + did.slice(-6);
     }
 
     function timeAgo(dateStr) {
       const date = new Date(dateStr);
       const now = new Date();
       const seconds = Math.floor((now - date) / 1000);
-      
       if (seconds < 60) return 'just now';
-      if (seconds < 3600) return Math.floor(seconds / 60) + ' min ago';
-      if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
-      if (seconds < 604800) return Math.floor(seconds / 86400) + ' days ago';
-      return date.toLocaleDateString();
+      if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+      if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+      return Math.floor(seconds / 86400) + 'd ago';
     }
 
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
-      
       const icons = { success: '✅', error: '❌', info: 'ℹ️' };
-      toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || icons.info}</span>
-        <span class="toast-message">${escapeHtml(message)}</span>
-      `;
-      
+      toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span class="toast-message">${escapeHtml(message)}</span>`;
       container.appendChild(toast);
       setTimeout(() => toast.remove(), 4000);
     }
 
-    // ========== Modal Functions ==========
-    function openModal(id) {
-      document.getElementById(id).classList.add('active');
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
-    }
-
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    
     function openRegisterModal() {
       document.getElementById('register-form').reset();
       document.getElementById('register-result').innerHTML = '';
+      document.getElementById('parent-field').style.display = 'none';
       openModal('register-modal');
     }
 
@@ -1127,30 +411,24 @@
       openModal('verify-modal');
     }
 
-    // Close modal on overlay click
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-          overlay.classList.remove('active');
-        }
-      });
+    document.getElementById('reg-type').addEventListener('change', (e) => {
+      document.getElementById('parent-field').style.display = e.target.value === 'worker' ? 'block' : 'none';
     });
 
-    // ========== API Functions ==========
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+    });
+
     async function checkHealth() {
       const dot = document.getElementById('api-status-dot');
       const text = document.getElementById('api-status-text');
-      
       try {
         const res = await fetch(`${API}/health`);
         const data = await res.json();
-        
         if (data.status === 'ok') {
           dot.className = 'status-dot online';
           text.textContent = 'API Online';
-        } else {
-          throw new Error('Not ok');
-        }
+        } else throw new Error('Not ok');
       } catch (e) {
         dot.className = 'status-dot offline';
         text.textContent = 'API Offline';
@@ -1159,37 +437,30 @@
 
     async function loadStats() {
       try {
-        const agents = await fetch(`${API}/agents`).then(r => r.json());
-        const total = agents.pagination?.total || 0;
-        document.getElementById('stat-agents').textContent = total;
-        document.getElementById('stat-agents-change').textContent = total > 0 ? '↑ New' : '-';
-
-        // Calculate avg reputation
+        const res = await fetch(`${API}/agents`);
+        const data = await res.json();
+        const agents = data.agents || [];
+        
+        const total = agents.length;
+        const workers = agents.filter(a => a.metadata?.agent_type === 'worker').length;
+        const mains = total - workers;
+        
         let totalRep = 0;
-        let verificationCount = 0;
-        
-        for (const agent of agents.agents || []) {
-          totalRep += agent.reputation_score || 0;
-          try {
-            const claims = await fetch(`${API}/verify/${agent.id}/claims`).then(r => r.json());
-            verificationCount += claims.total || 0;
-          } catch (e) {}
-        }
-        
-        const avgRep = total > 0 ? (totalRep / total).toFixed(1) : '-';
-        document.getElementById('stat-reputation').textContent = avgRep;
-        document.getElementById('stat-verifications').textContent = verificationCount;
-        
-        // Get recent events count
         let eventCount = 0;
-        for (const agent of (agents.agents || []).slice(0, 5)) {
+        
+        for (const agent of agents) {
+          totalRep += agent.reputation || 3.0;
           try {
             const rep = await fetch(`${API}/agents/${agent.id}/reputation`).then(r => r.json());
-            eventCount += rep.recent_events?.length || 0;
+            eventCount += rep.reputation?.event_count || 0;
           } catch (e) {}
         }
-        document.getElementById('stat-events').textContent = eventCount;
         
+        document.getElementById('stat-agents').textContent = total;
+        document.getElementById('stat-agents-change').textContent = mains + ' main';
+        document.getElementById('stat-workers').textContent = workers;
+        document.getElementById('stat-reputation').textContent = total > 0 ? (totalRep / total).toFixed(2) : '-';
+        document.getElementById('stat-events').textContent = eventCount;
       } catch (e) {
         console.error('Failed to load stats:', e);
       }
@@ -1197,71 +468,51 @@
 
     async function loadAgents() {
       const tbody = document.getElementById('agents-tbody');
-      
       try {
         const res = await fetch(`${API}/agents`);
         const data = await res.json();
         allAgents = data.agents || [];
-        
         renderAgents(allAgents);
       } catch (e) {
         console.error('Failed to load agents:', e);
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5">
-              <div class="empty-state">Failed to load agents. Check API connection.</div>
-            </td>
-          </tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">Failed to load agents</div></td></tr>`;
       }
     }
 
     function renderAgents(agents) {
       const tbody = document.getElementById('agents-tbody');
-      
       if (!agents || agents.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5">
-              <div class="empty-state">
-                <p>No agents registered yet.</p>
-                <button class="btn btn-primary" onclick="openRegisterModal()">Register Your First Agent</button>
-              </div>
-            </td>
-          </tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><p>No agents yet.</p><button class="btn btn-primary" onclick="openRegisterModal()">Register First Agent</button></div></td></tr>`;
         return;
       }
       
       tbody.innerHTML = agents.map(agent => {
-        const repScore = agent.reputation_score || 0;
-        const stars = getStars(repScore);
-        const normalizedRep = (repScore / 20).toFixed(1);
-        const hasVerifications = repScore > 10; // Simple heuristic
+        const rep = agent.reputation || 3.0;
+        const repPercent = (rep / 5) * 100;
+        const type = agent.metadata?.agent_type || 'main';
+        const isWorker = type === 'worker';
+        const icon = isWorker ? '👤' : '🤖';
         
         return `
-          <tr onclick="showAgentDetail('${agent.id}')">
+          <tr onclick="showAgentDetail('${agent.did}')">
             <td>
               <div class="agent-cell">
-                <div class="agent-dot ${agent.status || 'active'}"></div>
-                <span class="agent-name">${escapeHtml(agent.name)}</span>
+                <div class="agent-avatar">${icon}</div>
+                <div class="agent-info">
+                  <span class="agent-name">${escapeHtml(agent.name)}</span>
+                  ${isWorker ? `<span class="agent-type">→ ${truncateDID(agent.metadata?.parent_did)}</span>` : ''}
+                </div>
               </div>
             </td>
             <td class="did-cell">${truncateDID(agent.did)}</td>
             <td>
               <div class="rep-cell">
-                <span class="rep-stars">${stars}</span>
-                <span>${normalizedRep}</span>
+                <div class="rep-bar"><div class="rep-fill" style="width: ${repPercent}%"></div></div>
+                <span class="rep-score">${rep.toFixed(1)}</span>
               </div>
             </td>
-            <td>
-              <span class="status-badge ${hasVerifications ? 'verified' : 'pending'}">
-                ${hasVerifications ? '✓ Verified' : '⏳ Pending'}
-              </span>
-            </td>
-            <td>
-              <button class="action-btn" onclick="event.stopPropagation(); showAgentDetail('${agent.id}')">View</button>
-            </td>
+            <td><span class="status-badge ${type}">${type}</span></td>
+            <td><button class="action-btn" onclick="event.stopPropagation(); showAgentDetail('${agent.did}')">View</button></td>
           </tr>
         `;
       }).join('');
@@ -1269,35 +520,25 @@
 
     function filterAgents() {
       const query = document.getElementById('search-input').value.toLowerCase();
-      const filtered = allAgents.filter(a => 
-        a.name.toLowerCase().includes(query) || 
-        a.did.toLowerCase().includes(query)
-      );
+      const filtered = allAgents.filter(a => a.name.toLowerCase().includes(query) || a.did.toLowerCase().includes(query));
       renderAgents(filtered);
     }
 
     async function loadActivity() {
       const feed = document.getElementById('activity-feed');
-      
       try {
-        const agents = await fetch(`${API}/agents?limit=10`).then(r => r.json());
+        const agents = await fetch(`${API}/agents`).then(r => r.json());
         const activities = [];
         
         for (const agent of (agents.agents || []).slice(0, 5)) {
           try {
             const rep = await fetch(`${API}/agents/${agent.id}/reputation`).then(r => r.json());
-            for (const event of (rep.recent_events || []).slice(0, 3)) {
-              activities.push({
-                agent_name: agent.name,
-                event_type: event.event_type,
-                description: event.description,
-                created_at: event.created_at
-              });
+            for (const event of (rep.recent_events || []).slice(0, 2)) {
+              activities.push({ agent_name: agent.name, ...event });
             }
           } catch (e) {}
         }
         
-        // Sort by date
         activities.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         
         if (activities.length === 0) {
@@ -1306,176 +547,128 @@
         }
         
         feed.innerHTML = activities.slice(0, 6).map(a => {
-          let icon, iconClass;
-          if (a.event_type.includes('verif')) {
-            icon = '✅'; iconClass = 'verify';
-          } else if (a.event_type.includes('regist')) {
-            icon = '📝'; iconClass = 'register';
-          } else {
-            icon = '⭐'; iconClass = 'rep';
-          }
+          let icon = '📝', iconClass = 'register';
+          if (a.event_type.includes('verif')) { icon = '✅'; iconClass = 'verify'; }
+          else if (a.event_type.includes('work')) { icon = '⭐'; iconClass = 'rep'; }
           
           return `
             <div class="activity-item">
               <div class="activity-icon ${iconClass}">${icon}</div>
               <div class="activity-content">
-                <div class="activity-text"><strong>${escapeHtml(a.agent_name)}</strong> ${escapeHtml(a.description || a.event_type)}</div>
+                <div class="activity-text"><strong>${escapeHtml(a.agent_name)}</strong> ${escapeHtml(a.event_type)}</div>
                 <div class="activity-time">${timeAgo(a.created_at)}</div>
               </div>
             </div>
           `;
         }).join('');
-        
       } catch (e) {
         console.error('Failed to load activity:', e);
-        feed.innerHTML = '<div class="empty-state" style="padding: 1rem;">Failed to load activity</div>';
+        feed.innerHTML = '<div class="empty-state" style="padding: 1rem;">Failed to load</div>';
       }
     }
 
-    async function showAgentDetail(id) {
+    async function showAgentDetail(did) {
       openModal('detail-modal');
       const content = document.getElementById('detail-content');
       const title = document.getElementById('detail-title');
-      
       content.innerHTML = '<div class="empty-state">Loading...</div>';
       
       try {
-        const agent = await fetch(`${API}/agents/${id}`).then(r => r.json());
-        const reputation = await fetch(`${API}/agents/${id}/reputation`).then(r => r.json());
-        const claims = await fetch(`${API}/verify/${id}/claims`).then(r => r.json());
+        const agent = await fetch(`${API}/agents/${encodeURIComponent(did)}`).then(r => r.json());
+        const reputation = await fetch(`${API}/agents/${encodeURIComponent(did)}/reputation`).then(r => r.json());
         
         title.textContent = agent.name;
+        const type = agent.metadata?.agent_type || 'main';
+        const parentDid = agent.metadata?.parent_did;
         
-        const repScore = reputation.reputation?.score || 0;
+        let workersHtml = '';
+        if (type === 'main') {
+          try {
+            const workers = await fetch(`${API}/agents/${encodeURIComponent(did)}/workers`).then(r => r.json());
+            if (workers.workers && workers.workers.length > 0) {
+              workersHtml = `
+                <div class="workers-section">
+                  <h4>Workers (${workers.worker_count})</h4>
+                  ${workers.workers.map(w => `
+                    <div class="worker-item">
+                      <span>👤 ${escapeHtml(w.name)}</span>
+                      <span class="did">${truncateDID(w.did)}</span>
+                      <span>${(w.reputation || 3.0).toFixed(1)}⭐</span>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+          } catch (e) {}
+        }
         
         content.innerHTML = `
           <div class="detail-grid">
-            <div class="detail-row">
-              <span class="detail-label">ID</span>
-              <span class="detail-value">${agent.id}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">DID</span>
-              <span class="detail-value">${agent.did}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Status</span>
-              <span class="detail-value"><span class="status-badge verified">${agent.status || 'active'}</span></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Public Key</span>
-              <span class="detail-value">${agent.public_key.slice(0, 20)}...${agent.public_key.slice(-10)}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Owner</span>
-              <span class="detail-value">${agent.owner_id || '-'}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Created</span>
-              <span class="detail-value">${new Date(agent.created_at).toLocaleString()}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Reputation</span>
-              <span class="detail-value"><span class="rep-stars">${getStars(repScore)}</span> ${(repScore/20).toFixed(1)}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Verification Count</span>
-              <span class="detail-value">${reputation.reputation?.verification_count || 0}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Age</span>
-              <span class="detail-value">${reputation.reputation?.age_days || 0} days</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Claims</span>
-              <span class="detail-value">${claims.total || 0}</span>
-            </div>
+            <div class="detail-row"><span class="detail-label">DID</span><span class="detail-value">${agent.did}</span></div>
+            <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value"><span class="status-badge ${type}">${type}</span></span></div>
+            ${parentDid ? `<div class="detail-row"><span class="detail-label">Parent</span><span class="detail-value">${parentDid}</span></div>` : ''}
+            <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${agent.status || 'active'}</span></div>
+            <div class="detail-row"><span class="detail-label">Reputation</span><span class="detail-value">${(agent.reputation || 3.0).toFixed(2)} / 5.0</span></div>
+            <div class="detail-row"><span class="detail-label">Events</span><span class="detail-value">${reputation.reputation?.event_count || 0}</span></div>
+            <div class="detail-row"><span class="detail-label">Age</span><span class="detail-value">${reputation.reputation?.age_days || 0} days</span></div>
+            <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value">${new Date(agent.created_at).toLocaleString()}</span></div>
+            <div class="detail-row"><span class="detail-label">Public Key</span><span class="detail-value">${agent.public_key.slice(0, 12)}...${agent.public_key.slice(-8)}</span></div>
           </div>
-          
+          ${workersHtml}
           <div class="detail-section">
             <h4>DID Document</h4>
             <pre class="did-doc-pre">${JSON.stringify(agent.did_document, null, 2)}</pre>
           </div>
         `;
-        
       } catch (e) {
         console.error('Failed to load agent:', e);
         content.innerHTML = '<div class="empty-state">Failed to load agent details</div>';
       }
     }
 
-    // ========== Form Handlers ==========
     async function registerAgent(event) {
       event.preventDefault();
-      
       const btn = document.getElementById('register-btn');
       const resultDiv = document.getElementById('register-result');
-      
       btn.disabled = true;
       btn.textContent = 'Registering...';
       
       const name = document.getElementById('reg-name').value;
-      const owner_id = document.getElementById('reg-owner').value || undefined;
-      let metadata = {};
+      const type = document.getElementById('reg-type').value;
+      const owner = document.getElementById('reg-owner').value;
+      const parentDid = document.getElementById('reg-parent').value;
       
-      try {
-        const metaStr = document.getElementById('reg-metadata').value;
-        if (metaStr) metadata = JSON.parse(metaStr);
-      } catch (e) {
-        resultDiv.innerHTML = '<div class="result-box error">Invalid JSON in metadata field</div>';
-        btn.disabled = false;
-        btn.textContent = 'Register Agent';
-        return;
-      }
+      const metadata = { agent_type: type, owner: owner || undefined };
+      if (type === 'worker' && parentDid) metadata.parent_did = parentDid;
       
       try {
         const res = await fetch(`${API}/agents/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, owner_id, metadata })
+          body: JSON.stringify({ name, metadata })
         });
-        
         const data = await res.json();
         
         if (res.ok) {
-          resultDiv.innerHTML = `
-            <div class="result-box success">
-✅ Agent Registered Successfully!
-
-ID: ${data.id}
-DID: ${data.did}
-Public Key: ${data.public_key}
-${data.private_key ? `
-⚠️ SAVE YOUR PRIVATE KEY (shown only once):
-${data.private_key}` : ''}
-            </div>
-          `;
-          
-          showToast('Agent registered successfully!', 'success');
-          
-          // Refresh data
+          resultDiv.innerHTML = `<div class="result-box success">✅ Registered!\n\nDID: ${data.did}\n${data.private_key ? `\n⚠️ SAVE PRIVATE KEY:\n${data.private_key}` : ''}</div>`;
+          showToast('Agent registered!', 'success');
           loadAgents();
           loadStats();
           loadActivity();
-          
         } else {
           resultDiv.innerHTML = `<div class="result-box error">❌ ${data.error}</div>`;
-          showToast('Registration failed: ' + data.error, 'error');
+          showToast('Registration failed', 'error');
         }
       } catch (e) {
-        resultDiv.innerHTML = `<div class="result-box error">❌ Request failed: ${e.message}</div>`;
-        showToast('Registration failed', 'error');
+        resultDiv.innerHTML = `<div class="result-box error">❌ ${e.message}</div>`;
       }
-      
       btn.disabled = false;
       btn.textContent = 'Register Agent';
     }
 
     async function verifyAgent(event) {
       event.preventDefault();
-      
       const resultDiv = document.getElementById('verify-result');
-      
       const agent_id = document.getElementById('verify-agent').value;
       const message = document.getElementById('verify-message').value;
       const signature = document.getElementById('verify-signature').value;
@@ -1486,38 +679,20 @@ ${data.private_key}` : ''}
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message, signature })
         });
-        
         const data = await res.json();
         
         if (data.verified) {
-          resultDiv.innerHTML = `
-            <div class="result-box success">
-✅ Signature Verified!
-
-Agent: ${data.agent_id}
-DID: ${data.did}
-Verified At: ${data.verified_at}
-            </div>
-          `;
+          resultDiv.innerHTML = `<div class="result-box success">✅ Verified!\n\nDID: ${data.did}\nVerified: ${data.verified_at}</div>`;
           showToast('Signature verified!', 'success');
-          loadStats();
-          loadActivity();
         } else {
-          resultDiv.innerHTML = `<div class="result-box error">❌ Verification Failed: ${data.error || 'Invalid signature'}</div>`;
+          resultDiv.innerHTML = `<div class="result-box error">❌ Invalid signature</div>`;
           showToast('Verification failed', 'error');
         }
       } catch (e) {
-        resultDiv.innerHTML = `<div class="result-box error">❌ Request failed: ${e.message}</div>`;
-        showToast('Verification request failed', 'error');
+        resultDiv.innerHTML = `<div class="result-box error">❌ ${e.message}</div>`;
       }
     }
 
-    // ========== Navigation ==========
-    function scrollToAgents() {
-      document.getElementById('agents-table').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // ========== Initialize ==========
     async function init() {
       await checkHealth();
       await loadAgents();
@@ -1526,12 +701,7 @@ Verified At: ${data.verified_at}
     }
 
     init();
-    
-    // Refresh every 30 seconds
-    setInterval(() => {
-      checkHealth();
-      loadStats();
-    }, 30000);
+    setInterval(() => { checkHealth(); loadStats(); }, 30000);
   </script>
 </body>
 </html>
