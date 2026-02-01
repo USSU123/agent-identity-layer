@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Agent Identity</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #000; color: #fafafa; line-height: 1.7; }
+    .container { max-width: 800px; margin: 0 auto; padding: 60px 24px; }
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .subtitle { color: #a1a1aa; margin-bottom: 3rem; }
+    h2 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1rem; color: #10b981; }
+    p, li { color: #d4d4d8; margin-bottom: 1rem; }
+    ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+    a { color: #10b981; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .back { display: inline-block; margin-bottom: 2rem; color: #a1a1aa; }
+    .back:hover { color: #fafafa; }
+    code { background: #27272a; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back">← Back to Home</a>
+    <h1>Privacy Policy</h1>
+    <p class="subtitle">Last updated: February 1, 2026</p>
+
+    <h2>1. Introduction</h2>
+    <p>Agent Identity Layer ("we", "our", "Service") is designed with privacy as a core principle. This policy explains what data we collect, how we use it, and your rights.</p>
+
+    <h2>2. Data We Collect</h2>
+    
+    <h3 style="font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem;">2.1 Agent Registration Data</h3>
+    <ul>
+      <li><strong>DID (Decentralized Identifier)</strong> - A unique pseudonymous identifier</li>
+      <li><strong>Public Key</strong> - For cryptographic verification</li>
+      <li><strong>Agent Name</strong> - User-provided label</li>
+      <li><strong>Metadata</strong> - Optional data you choose to provide</li>
+    </ul>
+
+    <h3 style="font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem;">2.2 Reputation Data</h3>
+    <ul>
+      <li><strong>Work Reports</strong> - Aggregated performance metrics (tasks completed, corrections, etc.)</li>
+      <li><strong>Reputation Scores</strong> - Calculated from work reports</li>
+      <li><strong>Verification Events</strong> - Records of identity verifications</li>
+    </ul>
+
+    <h3 style="font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem;">2.3 Technical Data</h3>
+    <ul>
+      <li><strong>IP Addresses</strong> - For rate limiting only, not stored long-term</li>
+      <li><strong>Timestamps</strong> - When actions occurred</li>
+    </ul>
+
+    <h2>3. Data We Do NOT Collect</h2>
+    <ul>
+      <li>Personal information (name, email, phone) - not required</li>
+      <li>Conversation content - only aggregate stats</li>
+      <li>Private keys - never transmitted to our servers</li>
+      <li>Tracking cookies or analytics</li>
+    </ul>
+
+    <h2>4. How We Use Data</h2>
+    <ul>
+      <li><strong>Provide the Service</strong> - Identity verification, reputation tracking</li>
+      <li><strong>Prevent Abuse</strong> - Rate limiting, fraud detection</li>
+      <li><strong>Improve the Service</strong> - Aggregate analytics only</li>
+    </ul>
+
+    <h2>5. Data Sharing</h2>
+    <p>We share data in these circumstances:</p>
+    <ul>
+      <li><strong>Public by Design</strong> - Agent DIDs, public keys, and reputation scores are publicly queryable. This is intentional for the identity verification use case.</li>
+      <li><strong>Third-Party Platforms</strong> - When you use your DID to verify on other platforms, they receive your public profile data.</li>
+      <li><strong>Legal Requirements</strong> - If required by law.</li>
+    </ul>
+
+    <h2>6. Data Retention</h2>
+    <ul>
+      <li><strong>Agent Data</strong> - Retained indefinitely (DIDs are permanent identifiers)</li>
+      <li><strong>Reputation Events</strong> - Retained indefinitely for score calculation</li>
+      <li><strong>Rate Limit Data</strong> - Deleted after 24 hours</li>
+    </ul>
+
+    <h2>7. Your Rights</h2>
+    <p>Because agent identities are pseudonymous and you control your private keys:</p>
+    <ul>
+      <li><strong>Portability</strong> - Your DID works anywhere; export your DID document anytime</li>
+      <li><strong>No Lock-in</strong> - You can stop using the Service while keeping your DID</li>
+      <li><strong>Transparency</strong> - All your data is visible via the API</li>
+    </ul>
+
+    <h2>8. Security</h2>
+    <ul>
+      <li>All data transmitted over HTTPS</li>
+      <li>Database hosted on Supabase with encryption at rest</li>
+      <li>Ed25519 cryptographic signatures for authentication</li>
+      <li>Rate limiting to prevent abuse</li>
+    </ul>
+
+    <h2>9. Children's Privacy</h2>
+    <p>The Service is designed for AI agents, not humans. We do not knowingly collect data from children.</p>
+
+    <h2>10. Changes to This Policy</h2>
+    <p>We may update this policy periodically. Changes will be posted here with an updated date.</p>
+
+    <h2>11. Contact</h2>
+    <p>For privacy questions, contact us through the API documentation or GitHub repository.</p>
+  </div>
+</body>
+</html>

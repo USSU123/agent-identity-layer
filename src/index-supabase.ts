@@ -53,6 +53,15 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../landing/index.html'));
 });
 
+// Legal pages
+app.get('/terms', (req, res) => {
+  res.sendFile(path.join(__dirname, '../landing/terms.html'));
+});
+
+app.get('/privacy', (req, res) => {
+  res.sendFile(path.join(__dirname, '../landing/privacy.html'));
+});
+
 // Dashboard at /dashboard
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../dashboard/index.html'));
