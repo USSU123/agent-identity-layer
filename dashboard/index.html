@@ -52,9 +52,10 @@
 
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
     @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; transition: all 0.2s ease; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; transition: all 0.2s ease; position: relative; }
     .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
     .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .stat-content { flex: 1; }
     .stat-icon { width: 36px; height: 36px; background: var(--bg-elevated); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
     .stat-change { font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 500; }
     .stat-change.positive { background: rgba(34, 197, 94, 0.15); color: var(--success); }
@@ -164,13 +165,89 @@
     .toast-icon { font-size: 1.1rem; }
     .toast-message { font-size: 0.9rem; }
 
+    /* Mobile hamburger menu */
+    .hamburger { display: none; position: fixed; top: 1rem; left: 1rem; z-index: 200; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; cursor: pointer; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+    .hamburger span { display: block; width: 20px; height: 2px; background: var(--text-primary); margin: 4px 0; transition: all 0.3s ease; }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(4px, 4px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 90; }
+    .sidebar-overlay.active { display: block; }
+
+    /* Tablet breakpoint - 768px */
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 1.5rem 1rem; padding-top: 5rem; }
+      .page-title { font-size: 1.5rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .stat-card { padding: 1rem; }
+      .stat-value { font-size: 1.5rem; }
+      .content-grid { grid-template-columns: 1fr; }
+      .table-header { flex-wrap: wrap; gap: 0.75rem; }
+      .search-input { width: 100%; }
+      .search-wrapper { width: 100%; }
+      .modal { max-width: 100%; width: 100%; height: 100%; max-height: 100%; border-radius: 0; }
+      .modal-overlay.active { align-items: stretch; }
+      .modal-body { padding: 1.25rem; }
+      .modal-actions { padding: 1rem 1.25rem; }
+      .btn { min-height: 44px; padding: 0.75rem 1.25rem; }
+      .nav-item { min-height: 44px; padding: 0.75rem; }
+      .quick-btn { min-height: 44px; }
+      .action-btn { min-height: 44px; min-width: 44px; padding: 0.5rem 0.75rem; }
+      .toast-container { bottom: 1rem; right: 1rem; left: 1rem; }
+      .toast { width: 100%; }
+      /* Table horizontal scroll */
+      .table-card { overflow-x: auto; }
+      table { min-width: 600px; }
+      th, td { padding: 0.75rem 1rem; white-space: nowrap; }
+    }
+
+    /* Mobile breakpoint - 480px */
+    @media (max-width: 480px) {
+      .main { padding: 1rem 0.75rem; padding-top: 4.5rem; }
+      .page-header { margin-bottom: 1.25rem; }
+      .page-title { font-size: 1.25rem; }
+      .page-subtitle { font-size: 0.85rem; }
+      .stats-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+      .stat-card { padding: 0.875rem; display: flex; align-items: center; gap: 1rem; }
+      .stat-header { margin-bottom: 0; flex-shrink: 0; }
+      .stat-icon { width: 40px; height: 40px; }
+      .stat-value { font-size: 1.25rem; margin-bottom: 0; }
+      .stat-label { font-size: 0.8rem; }
+      .stat-change { flex-shrink: 0; }
+      .quick-card { padding: 1rem; }
+      .quick-title { font-size: 0.9rem; margin-bottom: 0.75rem; }
+      .quick-btn { padding: 0.875rem 1rem; font-size: 0.85rem; }
+      .form-group input, .form-group textarea, .form-group select { padding: 0.875rem 1rem; font-size: 1rem; /* Prevent zoom on iOS */ }
+      .form-group label { font-size: 0.9rem; }
+      .modal-header { padding: 1rem 1.25rem; }
+      .modal-title { font-size: 1rem; }
+      .modal-close { font-size: 1.75rem; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+      .detail-row { flex-direction: column; gap: 0.25rem; }
+      .detail-value { text-align: left; max-width: 100%; }
+      .activity-item { padding: 0.65rem 0; }
+      .activity-text { font-size: 0.8rem; }
+      .did-doc-pre { font-size: 0.65rem; padding: 0.75rem; }
+      .result-box { font-size: 0.7rem; padding: 0.75rem; }
+    }
+
     .workers-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
     .worker-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; font-size: 0.85rem; }
     .worker-item .did { font-family: var(--font-mono); color: var(--text-muted); font-size: 0.75rem; }
   </style>
 </head>
 <body>
-  <aside class="sidebar">
+  <!-- Mobile hamburger menu -->
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  
+  <aside class="sidebar" id="sidebar">
     <div class="logo">
       <div class="logo-icon">🔐</div>
       <span class="logo-text">Agent Identity</span>
@@ -201,31 +278,39 @@
       <div class="stat-card">
         <div class="stat-header">
           <div class="stat-icon">🤖</div>
-          <span class="stat-change positive" id="stat-agents-change">-</span>
         </div>
-        <div class="stat-value" id="stat-agents">-</div>
-        <div class="stat-label">Total Agents</div>
+        <div class="stat-content">
+          <div class="stat-value" id="stat-agents">-</div>
+          <div class="stat-label">Total Agents</div>
+        </div>
+        <span class="stat-change positive" id="stat-agents-change">-</span>
       </div>
       <div class="stat-card">
         <div class="stat-header">
           <div class="stat-icon">👥</div>
         </div>
-        <div class="stat-value" id="stat-workers">-</div>
-        <div class="stat-label">Workers</div>
+        <div class="stat-content">
+          <div class="stat-value" id="stat-workers">-</div>
+          <div class="stat-label">Workers</div>
+        </div>
       </div>
       <div class="stat-card">
         <div class="stat-header">
           <div class="stat-icon">⭐</div>
         </div>
-        <div class="stat-value" id="stat-reputation">-</div>
-        <div class="stat-label">Avg Reputation</div>
+        <div class="stat-content">
+          <div class="stat-value" id="stat-reputation">-</div>
+          <div class="stat-label">Avg Reputation</div>
+        </div>
       </div>
       <div class="stat-card">
         <div class="stat-header">
           <div class="stat-icon">📈</div>
         </div>
-        <div class="stat-value" id="stat-events">-</div>
-        <div class="stat-label">Total Events</div>
+        <div class="stat-content">
+          <div class="stat-value" id="stat-events">-</div>
+          <div class="stat-label">Total Events</div>
+        </div>
       </div>
     </div>
 
@@ -361,6 +446,30 @@
   <script>
     const API = '';
     let allAgents = [];
+
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      const hamburger = document.getElementById('hamburger');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+      hamburger.classList.toggle('active');
+    }
+
+    // Close sidebar when clicking nav items on mobile
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          const sidebar = document.getElementById('sidebar');
+          const overlay = document.getElementById('sidebar-overlay');
+          const hamburger = document.getElementById('hamburger');
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+          hamburger.classList.remove('active');
+        }
+      });
+    });
 
     function escapeHtml(str) {
       if (!str) return '';
