@@ -204,18 +204,7 @@ export const db = {
       return true;
     }
     
-    // Record exists - atomically increment and get new count
-    // Use raw SQL increment to avoid race condition
-    const { data, error } = await supabase
-      .from('rate_limits')
-      .update({ count: supabase.rpc ? undefined : 1 }) // Placeholder, actual increment below
-      .eq('identifier', identifier)
-      .eq('action_type', actionType)
-      .gte('window_start', windowStart)
-      .select('count')
-      .single();
-    
-    // Fallback: get current count and check
+    // Record exists - get current count and check
     const { data: current } = await supabase
       .from('rate_limits')
       .select('id, count')
