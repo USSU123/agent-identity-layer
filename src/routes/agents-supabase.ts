@@ -55,19 +55,39 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000);
 
+// Simple HTML sanitization - strips all tags
+function sanitizeName(input: string): string {
+  return input
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/[<>]/g, '')    // Remove any remaining angle brackets
+    .trim()
+    .substring(0, 255);      // Enforce max length
+}
+
 /**
  * POST /agents/register
  * Register a new agent identity
  */
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { name, owner_id, metadata = {}, public_key, parent_did: topLevelParentDid } = req.body;
+    const { name: rawName, owner_id, metadata = {}, public_key, parent_did: topLevelParentDid } = req.body;
     // Accept parent_did at top level OR in metadata
     const parentDid = topLevelParentDid || metadata?.parent_did || null;
     const agentType = parentDid ? 'worker' : (metadata?.agent_type || 'main');
 
-    if (!name) {
+    if (!rawName) {
       return res.status(400).json({ error: 'Name is required' });
+    }
+
+    // Validate and sanitize name
+    if (typeof rawName !== 'string') {
+      return res.status(400).json({ error: 'Name must be a string' });
+    }
+    
+    const name = sanitizeName(rawName);
+    
+    if (name.length < 1) {
+      return res.status(400).json({ error: 'Name cannot be empty after sanitization' });
     }
 
     // Rate limit check

@@ -43,6 +43,13 @@ app.get('/verify/:did', (req, res) => {
   agentsRouter(req, res, () => {});
 });
 
+// Agent profile page route (linked from verification_url)
+app.get('/agent/:did', (req, res) => {
+  // Forward to the agents router for profile lookup
+  req.url = `/${req.params.did}`;
+  agentsRouter(req, res, () => {});
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
