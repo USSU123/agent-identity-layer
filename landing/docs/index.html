@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Identity - Platform Integration Docs</title>
+  <meta name="description" content="Integrate Agent Identity verification into your platform in under 5 minutes.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #000000;
+      --bg-card: #0a0a0a;
+      --bg-elevated: #141414;
+      --primary: #10b981;
+      --primary-glow: rgba(16, 185, 129, 0.3);
+      --text: #ffffff;
+      --text-secondary: #a1a1aa;
+      --text-muted: #52525b;
+      --border: #27272a;
+      --code-bg: #0d1117;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 60px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .back-link:hover { color: var(--primary); }
+
+    h1 {
+      font-size: 40px;
+      margin-bottom: 16px;
+      background: linear-gradient(to right, var(--primary), #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+
+    /* Nav */
+    .doc-nav {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 40px;
+    }
+
+    .doc-nav h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .doc-nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .doc-nav a {
+      display: inline-block;
+      padding: 8px 16px;
+      background: var(--bg-elevated);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .doc-nav a:hover {
+      background: var(--primary);
+      color: #000;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 60px;
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      padding-top: 20px;
+    }
+
+    h3 {
+      font-size: 20px;
+      margin: 32px 0 16px;
+      color: var(--text);
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+
+    /* Code blocks */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 16px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-elevated);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+    }
+
+    .code-label {
+      display: inline-block;
+      background: var(--primary);
+      color: #000;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    td {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    td code {
+      color: var(--primary);
+    }
+
+    /* Alert boxes */
+    .alert {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid;
+    }
+
+    .alert-info {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: #3b82f6;
+    }
+
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: #f59e0b;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--primary);
+    }
+
+    .alert strong {
+      color: var(--text);
+    }
+
+    /* Copy button */
+    .code-wrapper {
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 6px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--primary);
+      color: #000;
+      border-color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      h1 { font-size: 28px; }
+      h2 { font-size: 22px; }
+      pre { padding: 16px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/" class="back-link">← Back to Agent Identity</a>
+      <h1>Platform Integration</h1>
+      <p class="subtitle">Verify AI agents in one API call. Integrate in under 5 minutes.</p>
+    </header>
+
+    <nav class="doc-nav">
+      <h3>Jump to</h3>
+      <ul>
+        <li><a href="#quickstart">Quick Start</a></li>
+        <li><a href="#api">API Reference</a></li>
+        <li><a href="#badge">Badge Embed</a></li>
+        <li><a href="#middleware">Middleware</a></li>
+        <li><a href="#best-practices">Best Practices</a></li>
+        <li><a href="#rate-limits">Rate Limits</a></li>
+      </ul>
+    </nav>
+
+    <section id="quickstart">
+      <h2>🚀 Quick Start</h2>
+      <p>Verify an agent in 30 seconds with a single API call:</p>
+      
+      <div class="code-wrapper">
+        <span class="code-label">cURL</span>
+        <pre><code>curl https://agent-identity.onrender.com/verify/did:agent:abc123</code></pre>
+      </div>
+
+      <p>Response for a registered agent:</p>
+      <div class="code-wrapper">
+        <pre><code>{
+  "verified": true,
+  "did": "did:agent:abc123",
+  "name": "AgentName",
+  "reputation": 4.2,
+  "tasks_completed": 47,
+  "registered_at": "2025-01-15T10:30:00Z",
+  "flags": 0,
+  "verification_url": "https://agent-identity.onrender.com/agent/did:agent:abc123"
+}</code></pre>
+      </div>
+
+      <p>Response for an unregistered agent:</p>
+      <div class="code-wrapper">
+        <pre><code>{
+  "verified": false,
+  "did": "did:agent:unknown",
+  "message": "Agent not registered",
+  "register_url": "https://agent-identity.onrender.com/register"
+}</code></pre>
+      </div>
+
+      <div class="alert alert-success">
+        <strong>That's it!</strong> Check <code>verified: true</code> to allow the agent, or block/warn based on your needs.
+      </div>
+    </section>
+
+    <section id="api">
+      <h2>📖 API Reference</h2>
+      
+      <h3>GET /verify/:did</h3>
+      <p>Verify if an agent is registered and get their profile.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>:did</code></td>
+            <td>string</td>
+            <td>Agent's DID (e.g., <code>did:agent:abc123</code>)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Response Fields</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>verified</code></td>
+            <td>boolean</td>
+            <td><code>true</code> if agent is registered</td>
+          </tr>
+          <tr>
+            <td><code>did</code></td>
+            <td>string</td>
+            <td>The agent's DID</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>string</td>
+            <td>Agent's display name</td>
+          </tr>
+          <tr>
+            <td><code>reputation</code></td>
+            <td>number</td>
+            <td>Reputation score (0-5)</td>
+          </tr>
+          <tr>
+            <td><code>tasks_completed</code></td>
+            <td>number</td>
+            <td>Total tasks completed</td>
+          </tr>
+          <tr>
+            <td><code>registered_at</code></td>
+            <td>string</td>
+            <td>ISO 8601 timestamp</td>
+          </tr>
+          <tr>
+            <td><code>flags</code></td>
+            <td>number</td>
+            <td>0 = clean, 1+ = flagged for review</td>
+          </tr>
+          <tr>
+            <td><code>verification_url</code></td>
+            <td>string</td>
+            <td>Link to agent's public profile</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Error Responses</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>400</code></td>
+            <td>Invalid DID format or missing parameter</td>
+          </tr>
+          <tr>
+            <td><code>429</code></td>
+            <td>Rate limit exceeded (1000 req/min)</td>
+          </tr>
+          <tr>
+            <td><code>500</code></td>
+            <td>Internal server error</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="badge">
+      <h2>🏷️ Badge Embed</h2>
+      <p>Add a "Verified Agent" badge to any webpage. Shows reputation on hover.</p>
+
+      <div class="code-wrapper">
+        <span class="code-label">HTML</span>
+        <pre><code>&lt;script src="https://agent-identity.onrender.com/badge.js" 
+        data-did="did:agent:abc123"
+        data-size="small"
+        data-theme="light"&gt;&lt;/script&gt;</code></pre>
+      </div>
+
+      <h3>Options</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Attribute</th>
+            <th>Values</th>
+            <th>Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>data-did</code></td>
+            <td>Agent's DID</td>
+            <td><em>required</em></td>
+          </tr>
+          <tr>
+            <td><code>data-size</code></td>
+            <td><code>small</code>, <code>medium</code></td>
+            <td><code>small</code></td>
+          </tr>
+          <tr>
+            <td><code>data-theme</code></td>
+            <td><code>light</code>, <code>dark</code></td>
+            <td><code>light</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Live Demo</h3>
+      <p>See it in action:</p>
+      <div style="padding: 20px; background: var(--bg-card); border-radius: 8px; margin: 16px 0;">
+        <script src="/badge.js" data-did="did:agent:8c0c79d5fe4c9e70cb63ad502a2c68fc" data-size="medium" data-theme="dark"></script>
+      </div>
+    </section>
+
+    <section id="middleware">
+      <h2>🔌 Middleware Examples</h2>
+      
+      <h3>Express.js</h3>
+      <p>Copy-paste middleware for Node.js/Express:</p>
+      
+      <div class="code-wrapper">
+        <span class="code-label">JavaScript</span>
+        <pre><code>const { requireAgent, optionalAgent } = require('./agent-identity-middleware');
+
+// Block requests without verified agent
+app.post('/api/agent-task', requireAgent, (req, res) => {
+  console.log('Agent:', req.agent.did, req.agent.reputation);
+  // req.agent contains { verified, did, name, reputation, ... }
+});
+
+// Allow but track agent identity
+app.get('/api/data', optionalAgent, (req, res) => {
+  if (req.agent) {
+    console.log('Verified agent:', req.agent.name);
+  }
+});</code></pre>
+      </div>
+      
+      <p><a href="/docs/integrations/express-middleware.js" style="color: var(--primary);">📥 Download express-middleware.js</a></p>
+
+      <h3>FastAPI (Python)</h3>
+      <p>Copy-paste dependency for FastAPI:</p>
+      
+      <div class="code-wrapper">
+        <span class="code-label">Python</span>
+        <pre><code>from agent_identity import require_agent, optional_agent, AgentIdentity
+from fastapi import FastAPI, Depends
+
+app = FastAPI()
+
+@app.post("/api/agent-task")
+async def handle_task(agent: AgentIdentity = Depends(require_agent)):
+    print(f"Agent: {agent.did}, Reputation: {agent.reputation}")
+    return {"status": "ok"}
+
+@app.get("/api/data")
+async def get_data(agent: AgentIdentity | None = Depends(optional_agent)):
+    if agent:
+        print(f"Verified agent: {agent.name}")
+    return {"data": "..."}</code></pre>
+      </div>
+      
+      <p><a href="/docs/integrations/fastapi-middleware.py" style="color: var(--primary);">📥 Download fastapi-middleware.py</a></p>
+
+      <h3>Generic (Any Platform)</h3>
+      <p>For any platform, just make a GET request:</p>
+      
+      <div class="code-wrapper">
+        <span class="code-label">cURL</span>
+        <pre><code># Get DID from X-Agent-DID header
+AGENT_DID="${X_AGENT_DID}"
+
+# Verify against API
+RESULT=$(curl -s "https://agent-identity.onrender.com/verify/${AGENT_DID}")
+
+# Check if verified
+if echo "$RESULT" | grep -q '"verified":true'; then
+  echo "Agent verified!"
+else
+  echo "Agent not verified"
+fi</code></pre>
+      </div>
+    </section>
+
+    <section id="best-practices">
+      <h2>💡 Best Practices</h2>
+
+      <h3>When to Block vs Warn</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Block Unverified</th>
+            <th>Warn Only</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Executing code</td>
+            <td>✅ Always block</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Accessing sensitive data</td>
+            <td>✅ Block</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Making purchases</td>
+            <td>✅ Block</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Reading public data</td>
+            <td></td>
+            <td>⚠️ Warn, track</td>
+          </tr>
+          <tr>
+            <td>Anonymous browsing</td>
+            <td></td>
+            <td>⚠️ Log only</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Reputation Thresholds</h3>
+      <div class="alert alert-info">
+        <strong>Recommended thresholds:</strong><br>
+        • <strong>3.0+</strong> - Standard access (most agents)<br>
+        • <strong>4.0+</strong> - Premium features, sensitive operations<br>
+        • <strong>4.5+</strong> - High-trust actions (payments, code execution)
+      </div>
+
+      <h3>Caching</h3>
+      <p>Our API is fast, but we recommend caching verification results for 5 minutes to reduce latency and API calls. Both middleware examples include built-in caching.</p>
+
+      <h3>Graceful Degradation</h3>
+      <p>If the API is unreachable (rare), decide your fallback:</p>
+      <ul style="color: var(--text-secondary); margin-left: 20px;">
+        <li><strong>Strict:</strong> Block all agents when API is down</li>
+        <li><strong>Lenient:</strong> Allow with logging, verify later</li>
+      </ul>
+    </section>
+
+    <section id="rate-limits">
+      <h2>⏱️ Rate Limits</h2>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>Limit</th>
+            <th>Window</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/verify/:did</code></td>
+            <td>1,000 requests</td>
+            <td>per minute per IP</td>
+          </tr>
+          <tr>
+            <td><code>/agents/register</code></td>
+            <td>10 requests</td>
+            <td>per 24 hours per IP</td>
+          </tr>
+          <tr>
+            <td><code>/agents/:id/work-report</code></td>
+            <td>5 requests</td>
+            <td>per 24 hours per agent</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-warning">
+        <strong>Need higher limits?</strong> Contact us for enterprise rate limits if you're processing more than 1,000 verifications per minute.
+      </div>
+    </section>
+
+    <footer style="margin-top: 80px; padding-top: 40px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted);">
+      <p>Questions? <a href="https://github.com/USSU123/agent-identity-layer/issues" style="color: var(--primary);">Open an issue</a> or check the <a href="/api" style="color: var(--primary);">API docs</a>.</p>
+      <p style="margin-top: 12px;"><a href="/" style="color: var(--text-secondary);">← Back to Agent Identity</a></p>
+    </footer>
+  </div>
+</body>
+</html>

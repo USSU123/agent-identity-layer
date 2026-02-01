@@ -14,10 +14,24 @@ app.use(express.json());
 
 // Serve static files
 app.use('/dashboard', express.static(path.join(__dirname, '../dashboard')));
+app.use('/docs', express.static(path.join(__dirname, '../landing/docs')));
 app.use(express.static(path.join(__dirname, '../landing')));
+
+// Explicit badge.js route (ensure it's served correctly)
+app.get('/badge.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, '../landing/badge.js'));
+});
 
 // API Routes
 app.use('/agents', agentsRouter);
+
+// Convenience route: /verify/:did (also available at /agents/verify/:did)
+app.get('/verify/:did', (req, res) => {
+  // Forward to the agents router
+  req.url = `/verify/${req.params.did}`;
+  agentsRouter(req, res, () => {});
+});
 
 // Health check
 app.get('/health', (req, res) => {

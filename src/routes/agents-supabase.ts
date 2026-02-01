@@ -5,6 +5,36 @@ import { generateKeyPair, generateDID, createDIDDocument, verify, sign } from '.
 
 const router = Router();
 
+// In-memory rate limit store for verify endpoint (1000 req/min per IP)
+const verifyRateLimits = new Map<string, { count: number; resetAt: number }>();
+
+function checkVerifyRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const limit = verifyRateLimits.get(ip);
+  
+  if (!limit || now > limit.resetAt) {
+    verifyRateLimits.set(ip, { count: 1, resetAt: now + 60000 });
+    return true;
+  }
+  
+  if (limit.count >= 1000) {
+    return false;
+  }
+  
+  limit.count++;
+  return true;
+}
+
+// Clean up old rate limit entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, limit] of verifyRateLimits.entries()) {
+    if (now > limit.resetAt) {
+      verifyRateLimits.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000);
+
 /**
  * POST /agents/register
  * Register a new agent identity
@@ -110,6 +140,85 @@ router.post('/register', async (req: Request, res: Response) => {
       return res.status(409).json({ error: 'Agent with this public key already exists' });
     }
     res.status(500).json({ error: 'Failed to register agent' });
+  }
+});
+
+/**
+ * GET /verify/:did
+ * Platform verification endpoint - verify if an agent is registered
+ * Returns verification status, reputation, and basic profile
+ */
+router.get('/verify/:did', async (req: Request, res: Response) => {
+  try {
+    const { did } = req.params;
+    
+    // Rate limit check
+    const clientIP = String(req.ip || req.headers['x-forwarded-for'] || 'unknown');
+    if (!checkVerifyRateLimit(clientIP)) {
+      return res.status(429).json({
+        error: 'Rate limit exceeded',
+        message: 'Maximum 1000 verification requests per minute per IP',
+        retry_after_seconds: 60
+      });
+    }
+
+    // Validate DID format
+    if (!did || did.trim() === '') {
+      return res.status(400).json({
+        error: 'Invalid request',
+        message: 'DID parameter is required',
+        example: 'GET /verify/did:agent:abc123'
+      });
+    }
+
+    // Check DID format - must start with "did:agent:"
+    if (!did.startsWith('did:agent:')) {
+      return res.status(400).json({
+        error: 'Invalid DID format',
+        message: 'DID must start with "did:agent:"',
+        provided: did,
+        expected_format: 'did:agent:<identifier>'
+      });
+    }
+
+    // Look up agent by exact DID match
+    const agent = await db.getAgentByDid(did);
+
+    if (!agent) {
+      return res.json({
+        verified: false,
+        did: did,
+        message: 'Agent not registered',
+        register_url: 'https://agent-identity.onrender.com/register'
+      });
+    }
+
+    // Get reputation and task count
+    const { total: totalScore, count: eventCount } = await db.getReputationScore(agent.id);
+    const reputation = Math.round(Math.max(0, Math.min(5, 3.0 + (totalScore / 100))) * 100) / 100;
+    
+    // Count tasks completed from work_report events
+    const events = await db.getReputationEvents(agent.id, 1000);
+    const tasksCompleted = events
+      .filter(e => e.event_type === 'work_report')
+      .reduce((sum, e) => sum + (e.metadata?.tasks_completed || 0), 0);
+
+    res.json({
+      verified: true,
+      did: agent.did,
+      name: agent.name,
+      reputation: reputation,
+      tasks_completed: tasksCompleted,
+      registered_at: agent.created_at,
+      flags: agent.status === 'flagged' ? 1 : 0,
+      verification_url: `https://agent-identity.onrender.com/agent/${encodeURIComponent(agent.did)}`
+    });
+  } catch (error) {
+    console.error('Verification error:', error);
+    res.status(500).json({ 
+      error: 'Verification failed',
+      message: 'An internal error occurred during verification'
+    });
   }
 });
 
