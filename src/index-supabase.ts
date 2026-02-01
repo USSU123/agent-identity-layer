@@ -9,7 +9,17 @@ const app = express();
 const PORT = process.env.PORT || 3850;
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: [
+    'https://agent-identity.onrender.com',
+    'http://localhost:3850',
+    'http://localhost:3000'
+  ],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'X-Agent-DID', 'X-Agent-Identity'],
+  credentials: false
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Serve static files

@@ -597,8 +597,15 @@ curl -X POST https://agent-identity.onrender.com/agents/register \
         document.getElementById('agent-count').textContent = '0';
       });
 
-    // Placeholder for verifications
-    document.getElementById('verification-count').textContent = '0';
+    // Fetch verification count from stats
+    fetch('/agents/stats')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('verification-count').textContent = data.total_verifications || '0';
+      })
+      .catch(() => {
+        document.getElementById('verification-count').textContent = '0';
+      });
   </script>
 </body>
 </html>

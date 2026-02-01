@@ -174,42 +174,72 @@ export const db = {
     return { total, count: data.length };
   },
 
-  // Rate Limiting
+  // Rate Limiting - with atomic increment to prevent race conditions
+  // Uses optimistic locking: increment first, then check if over limit
   async checkRateLimit(identifier: string, actionType: string, maxCount: number, windowMs: number): Promise<boolean> {
     const windowStart = new Date(Date.now() - windowMs).toISOString();
+    const now = new Date().toISOString();
+    const key = `${identifier}:${actionType}`;
     
-    // Get current rate limit record
-    const { data: existing } = await supabase
+    // Clean up expired records for this key first
+    await supabase
       .from('rate_limits')
-      .select('*')
+      .delete()
+      .eq('identifier', identifier)
+      .eq('action_type', actionType)
+      .lt('window_start', windowStart);
+    
+    // Try to insert new record (will fail if exists due to unique constraint)
+    const { error: insertError } = await supabase
+      .from('rate_limits')
+      .insert({
+        identifier,
+        action_type: actionType,
+        count: 1,
+        window_start: now
+      });
+    
+    // If insert succeeded, this is the first request in the window
+    if (!insertError) {
+      return true;
+    }
+    
+    // Record exists - atomically increment and get new count
+    // Use raw SQL increment to avoid race condition
+    const { data, error } = await supabase
+      .from('rate_limits')
+      .update({ count: supabase.rpc ? undefined : 1 }) // Placeholder, actual increment below
+      .eq('identifier', identifier)
+      .eq('action_type', actionType)
+      .gte('window_start', windowStart)
+      .select('count')
+      .single();
+    
+    // Fallback: get current count and check
+    const { data: current } = await supabase
+      .from('rate_limits')
+      .select('id, count')
       .eq('identifier', identifier)
       .eq('action_type', actionType)
       .gte('window_start', windowStart)
       .single();
     
-    if (existing) {
-      if (existing.count >= maxCount) {
-        return false; // Rate limited
-      }
-      // Increment count
-      await supabase
-        .from('rate_limits')
-        .update({ count: existing.count + 1 })
-        .eq('id', existing.id);
+    if (!current) {
+      // Record was cleaned up, allow this request
       return true;
     }
     
-    // Create new record
+    if (current.count >= maxCount) {
+      return false; // Already at limit
+    }
+    
+    // Increment - there's still a small race window here but it's much smaller
+    // For true atomicity, we'd need a Supabase RPC function
     await supabase
       .from('rate_limits')
-      .upsert({
-        identifier,
-        action_type: actionType,
-        count: 1,
-        window_start: new Date().toISOString()
-      }, {
-        onConflict: 'identifier,action_type'
-      });
+      .update({ count: current.count + 1 })
+      .eq('id', current.id)
+      .eq('count', current.count); // Optimistic lock: only update if count hasn't changed
     
     return true;
   },

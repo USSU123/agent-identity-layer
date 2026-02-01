@@ -1,18 +1,38 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { db, Agent, supabase } from '../db/supabase';
-import { generateKeyPair, generateDID, createDIDDocument, verify, sign } from '../utils/crypto';
+import { generateKeyPair, generateDID, createDIDDocument, verify } from '../utils/crypto';
 
 const router = Router();
 
 // In-memory rate limit store for verify endpoint (1000 req/min per IP)
 const verifyRateLimits = new Map<string, { count: number; resetAt: number }>();
+const MAX_RATE_LIMIT_ENTRIES = 50000; // Cap to prevent memory exhaustion
 
 function checkVerifyRateLimit(ip: string): boolean {
   const now = Date.now();
   const limit = verifyRateLimits.get(ip);
   
   if (!limit || now > limit.resetAt) {
+    // Check map size before adding new entry
+    if (verifyRateLimits.size >= MAX_RATE_LIMIT_ENTRIES) {
+      // Emergency cleanup: remove all expired entries
+      for (const [key, val] of verifyRateLimits.entries()) {
+        if (now > val.resetAt) {
+          verifyRateLimits.delete(key);
+        }
+      }
+      // If still too large, remove oldest entries
+      if (verifyRateLimits.size >= MAX_RATE_LIMIT_ENTRIES) {
+        const entriesToRemove = verifyRateLimits.size - MAX_RATE_LIMIT_ENTRIES + 10000;
+        let removed = 0;
+        for (const key of verifyRateLimits.keys()) {
+          if (removed >= entriesToRemove) break;
+          verifyRateLimits.delete(key);
+          removed++;
+        }
+      }
+    }
     verifyRateLimits.set(ip, { count: 1, resetAt: now + 60000 });
     return true;
   }
