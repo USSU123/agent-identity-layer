@@ -41,8 +41,9 @@ setInterval(() => {
  */
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { name, owner_id, metadata = {}, public_key } = req.body;
-    const parentDid = metadata?.parent_did || null;
+    const { name, owner_id, metadata = {}, public_key, parent_did: topLevelParentDid } = req.body;
+    // Accept parent_did at top level OR in metadata
+    const parentDid = topLevelParentDid || metadata?.parent_did || null;
     const agentType = parentDid ? 'worker' : (metadata?.agent_type || 'main');
 
     if (!name) {
@@ -498,15 +499,69 @@ router.get('/:id/workers', async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /agents/stats
+ * Get aggregate statistics for dashboard
+ */
+router.get('/stats', async (req: Request, res: Response) => {
+  try {
+    // Get all agents for counting
+    const { data: agents, error } = await supabase
+      .from('agents')
+      .select('id, metadata, created_at');
+    
+    if (error) throw error;
+
+    const total = agents?.length || 0;
+    const mainAgents = agents?.filter(a => a.metadata?.agent_type !== 'worker').length || 0;
+    const workers = total - mainAgents;
+
+    // Get verification count
+    const { count: verificationCount } = await supabase
+      .from('verifications')
+      .select('*', { count: 'exact', head: true });
+
+    // Get recent registrations (last 24h)
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const recentAgents = agents?.filter(a => a.created_at > oneDayAgo).length || 0;
+
+    res.json({
+      total_agents: total,
+      main_agents: mainAgents,
+      worker_agents: workers,
+      total_verifications: verificationCount || 0,
+      registrations_24h: recentAgents
+    });
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
+/**
  * GET /agents
- * List all agents
+ * List all agents with pagination
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const agents = await db.getAllAgents();
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 100));
+    const offset = Math.max(0, parseInt(req.query.offset as string) || 0);
+
+    // Get total count
+    const { count: totalCount } = await supabase
+      .from('agents')
+      .select('*', { count: 'exact', head: true });
+
+    // Get paginated agents
+    const { data: agents, error } = await supabase
+      .from('agents')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw error;
     
     // Get reputation for each agent
-    const agentsWithRep = await Promise.all(agents.map(async (agent) => {
+    const agentsWithRep = await Promise.all((agents || []).map(async (agent) => {
       const { total } = await db.getReputationScore(agent.id);
       return {
         ...agent,
@@ -517,9 +572,9 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       agents: agentsWithRep,
       pagination: {
-        total: agents.length,
-        limit: 100,
-        offset: 0
+        total: totalCount || 0,
+        limit,
+        offset
       }
     });
   } catch (error) {
