@@ -36,6 +36,15 @@ app.get('/badge.js', (req, res) => {
 // API Routes
 app.use('/agents', agentsRouter);
 
+// Handle /verify without DID parameter
+app.get('/verify', (req, res) => {
+  res.status(400).json({
+    error: 'DID parameter required',
+    message: 'Usage: GET /verify/{did}',
+    example: 'GET /verify/did:agent:abc123'
+  });
+});
+
 // Convenience route: /verify/:did (also available at /agents/verify/:did)
 app.get('/verify/:did', (req, res) => {
   // Forward to the agents router
