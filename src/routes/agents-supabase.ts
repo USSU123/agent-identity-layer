@@ -357,11 +357,11 @@ router.get('/:id/workers', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Agent not found' });
     }
 
-    // Find all agents where metadata contains this agent as parent
+    // Find all agents where metadata.parent_did matches this agent
     const { data: workers, error } = await supabase
       .from('agents')
       .select('*')
-      .filter('metadata->>parent_did', 'eq', agent.did);
+      .contains('metadata', { parent_did: agent.did });
 
     if (error) {
       return res.status(500).json({ error: 'Failed to fetch workers' });
