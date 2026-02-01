@@ -1,0 +1,17 @@
+{
+  "name": "@agent-identity/sdk",
+  "version": "0.1.0",
+  "description": "SDK for Agent Identity Layer",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.3.0"
+  },
+  "peerDependencies": {
+    "@noble/curves": "^1.3.0"
+  }
+}

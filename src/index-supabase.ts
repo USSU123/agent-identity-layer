@@ -1,0 +1,72 @@
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { initializeDatabase } from './db/supabase';
+import agentsRouter from './routes/agents-supabase';
+
+const app = express();
+const PORT = process.env.PORT || 3850;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Serve static dashboard
+app.use(express.static(path.join(__dirname, '../dashboard')));
+
+// API Routes
+app.use('/agents', agentsRouter);
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    service: 'agent-identity-layer',
+    version: '0.2.0',
+    database: 'supabase',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// API docs
+app.get('/api', (req, res) => {
+  res.json({
+    name: 'Agent Identity Layer API',
+    version: '0.2.0',
+    database: 'supabase',
+    endpoints: {
+      'POST /agents/register': 'Register a new agent identity',
+      'GET /agents': 'List all agents',
+      'GET /agents/:id': 'Get agent profile by ID or DID',
+      'POST /agents/:id/verify': 'Verify agent signature',
+      'GET /agents/:id/reputation': 'Get agent reputation score',
+      'POST /agents/:id/work-report': 'Submit work performance (signed)'
+    },
+    documentation: 'https://github.com/yourusername/agent-identity'
+  });
+});
+
+// Dashboard route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dashboard/index.html'));
+});
+
+// Initialize and start
+initializeDatabase();
+
+app.listen(PORT, () => {
+  console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║   🤖 Agent Identity Layer (Supabase)                          ║
+║                                                               ║
+║   API:        http://localhost:${PORT}/api                       ║
+║   Dashboard:  http://localhost:${PORT}                           ║
+║   Health:     http://localhost:${PORT}/health                    ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+  `);
+});
+
+export default app;
