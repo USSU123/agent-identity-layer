@@ -12,6 +12,8 @@ const router = Router();
 router.post('/register', async (req: Request, res: Response) => {
   try {
     const { name, owner_id, metadata = {}, public_key } = req.body;
+    const parentDid = metadata?.parent_did || null;
+    const agentType = parentDid ? 'worker' : (metadata?.agent_type || 'main');
 
     if (!name) {
       return res.status(400).json({ error: 'Name is required' });
@@ -28,6 +30,14 @@ router.post('/register', async (req: Request, res: Response) => {
       });
     }
 
+    // If registering as worker, verify parent exists
+    if (parentDid) {
+      const parent = await db.getAgentByDid(parentDid);
+      if (!parent) {
+        return res.status(400).json({ error: 'Parent agent not found', parent_did: parentDid });
+      }
+    }
+
     const id = uuidv4();
     let keyPair = null;
     let publicKey = public_key;
@@ -37,10 +47,19 @@ router.post('/register', async (req: Request, res: Response) => {
       publicKey = keyPair.publicKey;
     }
 
-    const did = generateDID(publicKey);
+    // Generate DID - workers get parent prefix
+    let did: string;
+    if (parentDid) {
+      const workerId = generateDID(publicKey).split(':')[2].substring(0, 8);
+      did = `${parentDid}:w:${workerId}`;
+    } else {
+      did = generateDID(publicKey);
+    }
 
     const fullMetadata = {
       ...metadata,
+      agent_type: agentType,
+      parent_did: parentDid,
       registration_ip: clientIP,
       registration_timestamp: new Date().toISOString()
     };
@@ -74,6 +93,8 @@ router.post('/register', async (req: Request, res: Response) => {
       name,
       owner_id,
       public_key: publicKey,
+      agent_type: agentType,
+      parent_did: parentDid,
       created_at: agent.created_at
     };
 
@@ -316,6 +337,54 @@ router.post('/:id/work-report', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Work report error:', error);
     res.status(500).json({ error: 'Failed to record work report' });
+  }
+});
+
+/**
+ * GET /agents/:id/workers
+ * List all workers under this agent
+ */
+router.get('/:id/workers', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const isDID = id.startsWith('did:');
+    
+    const agent = isDID 
+      ? await db.getAgentByDid(id)
+      : await db.getAgentById(id);
+
+    if (!agent) {
+      return res.status(404).json({ error: 'Agent not found' });
+    }
+
+    // Find all agents where metadata contains this agent as parent
+    const { data: workers, error } = await supabase
+      .from('agents')
+      .select('*')
+      .filter('metadata->parent_did', 'eq', agent.did);
+
+    if (error) {
+      return res.status(500).json({ error: 'Failed to fetch workers' });
+    }
+
+    // Get reputation for each worker
+    const workersWithRep = await Promise.all((workers || []).map(async (worker: any) => {
+      const { total } = await db.getReputationScore(worker.id);
+      return {
+        ...worker,
+        reputation: Math.round((3.0 + total / 100) * 100) / 100
+      };
+    }));
+
+    res.json({
+      parent_did: agent.did,
+      parent_name: agent.name,
+      workers: workersWithRep,
+      worker_count: workersWithRep.length
+    });
+  } catch (error) {
+    console.error('List workers error:', error);
+    res.status(500).json({ error: 'Failed to list workers' });
   }
 });
 
