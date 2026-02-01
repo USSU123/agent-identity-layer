@@ -12,8 +12,9 @@ const PORT = process.env.PORT || 3850;
 app.use(cors());
 app.use(express.json());
 
-// Serve static dashboard
-app.use(express.static(path.join(__dirname, '../dashboard')));
+// Serve static files
+app.use('/dashboard', express.static(path.join(__dirname, '../dashboard')));
+app.use(express.static(path.join(__dirname, '../landing')));
 
 // API Routes
 app.use('/agents', agentsRouter);
@@ -47,8 +48,13 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Dashboard route
+// Landing page at root
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../landing/index.html'));
+});
+
+// Dashboard at /dashboard
+app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../dashboard/index.html'));
 });
 
