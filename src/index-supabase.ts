@@ -12,12 +12,15 @@ const PORT = process.env.PORT || 3850;
 const corsOptions = {
   origin: [
     'https://agent-identity.onrender.com',
+    'https://clawid.co',
+    'https://www.clawid.co',
+    'https://clawid.netlify.app',
     'http://localhost:3850',
     'http://localhost:3000'
   ],
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'X-Agent-DID', 'X-Agent-Identity'],
-  credentials: false
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Agent-DID', 'X-Agent-Identity'],
+  credentials: true
 };
 app.use(cors(corsOptions));
 app.use(express.json());
