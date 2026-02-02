@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { db, Agent, supabase } from '../db/supabase';
+import { db, Agent, supabase, generateClaimCode } from '../db/supabase';
 import { generateKeyPair, generateDID, createDIDDocument, verify } from '../utils/crypto';
 
 const router = Router();
@@ -127,6 +127,18 @@ router.post('/register', async (req: Request, res: Response) => {
       did = generateDID(publicKey);
     }
 
+    // Generate claim code only for main agents (not sub-agents)
+    const claimCode = parentDid ? null : generateClaimCode();
+
+    // If this is a sub-agent, inherit user_id from parent
+    let userId = null;
+    if (parentDid) {
+      const parent = await db.getAgentByDid(parentDid);
+      if (parent?.user_id) {
+        userId = parent.user_id;
+      }
+    }
+
     const fullMetadata = {
       ...metadata,
       agent_type: agentType,
@@ -135,15 +147,29 @@ router.post('/register', async (req: Request, res: Response) => {
       registration_timestamp: new Date().toISOString()
     };
 
-    const agent = await db.createAgent({
-      id,
-      name,
-      owner_id: owner_id || null,
-      public_key: publicKey,
-      did,
-      metadata: fullMetadata,
-      status: 'active'
-    });
+    // Create agent with new fields
+    const { data: agent, error: insertError } = await supabase
+      .from('agents')
+      .insert({
+        id,
+        name,
+        owner_id: owner_id || null,
+        public_key: publicKey,
+        did,
+        metadata: fullMetadata,
+        status: 'active',
+        claim_code: claimCode,
+        user_id: userId,
+        parent_did: parentDid,
+        agent_type: agentType
+      })
+      .select()
+      .single();
+
+    if (insertError || !agent) {
+      console.error('Insert error:', insertError);
+      return res.status(500).json({ error: 'Failed to register agent' });
+    }
 
     if (!agent) {
       return res.status(500).json({ error: 'Failed to register agent' });
@@ -174,6 +200,12 @@ router.post('/register', async (req: Request, res: Response) => {
       response.warning = 'SAVE YOUR PRIVATE KEY - IT WILL NOT BE SHOWN AGAIN';
     }
 
+    // Include claim code for main agents
+    if (claimCode) {
+      response.claim_code = claimCode;
+      response.claim_instructions = 'Go to clawid.co, create an account, and enter this code to link this agent to your dashboard.';
+    }
+
     res.status(201).json(response);
   } catch (error: any) {
     console.error('Registration error:', error);
@@ -181,6 +213,161 @@ router.post('/register', async (req: Request, res: Response) => {
       return res.status(409).json({ error: 'Agent with this public key already exists' });
     }
     res.status(500).json({ error: 'Failed to register agent' });
+  }
+});
+
+/**
+ * POST /agents/claim
+ * Claim an agent with a claim code (links to user account)
+ * Requires Authorization header with Supabase JWT
+ */
+router.post('/claim', async (req: Request, res: Response) => {
+  try {
+    const { claim_code } = req.body;
+    
+    if (!claim_code) {
+      return res.status(400).json({ error: 'claim_code is required' });
+    }
+
+    // Get user from Authorization header (Supabase JWT)
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ 
+        error: 'Authorization required',
+        message: 'Sign in at clawid.co and provide your access token'
+      });
+    }
+
+    const token = authHeader.substring(7);
+    
+    // Verify the JWT with Supabase
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return res.status(401).json({ 
+        error: 'Invalid token',
+        message: 'Please sign in again at clawid.co'
+      });
+    }
+
+    // Find agent with this claim code
+    const { data: agent, error: findError } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('claim_code', claim_code.toUpperCase())
+      .single();
+
+    if (findError || !agent) {
+      return res.status(404).json({ 
+        error: 'Invalid claim code',
+        message: 'No agent found with this claim code. Check the code and try again.'
+      });
+    }
+
+    if (agent.user_id) {
+      return res.status(400).json({ 
+        error: 'Already claimed',
+        message: 'This agent has already been claimed by an account.'
+      });
+    }
+
+    // Claim the agent (and all its sub-agents)
+    const { error: claimError } = await supabase
+      .from('agents')
+      .update({ user_id: user.id })
+      .eq('id', agent.id);
+
+    if (claimError) {
+      console.error('Claim error:', claimError);
+      return res.status(500).json({ error: 'Failed to claim agent' });
+    }
+
+    // Also claim all child agents
+    await supabase
+      .from('agents')
+      .update({ user_id: user.id })
+      .eq('parent_did', agent.did);
+
+    // Count claimed agents (main + children)
+    const { count: childCount } = await supabase
+      .from('agents')
+      .select('*', { count: 'exact', head: true })
+      .eq('parent_did', agent.did);
+
+    res.json({
+      success: true,
+      message: 'Agent claimed successfully!',
+      agent: {
+        did: agent.did,
+        name: agent.name
+      },
+      sub_agents_claimed: childCount || 0
+    });
+  } catch (error) {
+    console.error('Claim error:', error);
+    res.status(500).json({ error: 'Failed to claim agent' });
+  }
+});
+
+/**
+ * GET /agents/my
+ * Get all agents owned by the authenticated user
+ * Requires Authorization header with Supabase JWT
+ */
+router.get('/my', async (req: Request, res: Response) => {
+  try {
+    // Get user from Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ 
+        error: 'Authorization required',
+        message: 'Sign in at clawid.co to view your agents'
+      });
+    }
+
+    const token = authHeader.substring(7);
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    // Get all agents for this user
+    const { data: agents, error } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return res.status(500).json({ error: 'Failed to fetch agents' });
+    }
+
+    // Get reputation for each
+    const agentsWithRep = await Promise.all((agents || []).map(async (agent) => {
+      const { total } = await db.getReputationScore(agent.id);
+      return {
+        ...agent,
+        reputation: Math.round((3.0 + total / 100) * 100) / 100
+      };
+    }));
+
+    // Organize by main agents and their workers
+    const mainAgents = agentsWithRep.filter(a => !a.parent_did);
+    const result = mainAgents.map(main => ({
+      ...main,
+      workers: agentsWithRep.filter(a => a.parent_did === main.did)
+    }));
+
+    res.json({
+      user_id: user.id,
+      email: user.email,
+      agents: result,
+      total_agents: agentsWithRep.length
+    });
+  } catch (error) {
+    console.error('My agents error:', error);
+    res.status(500).json({ error: 'Failed to fetch agents' });
   }
 });
 

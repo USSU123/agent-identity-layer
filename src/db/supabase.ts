@@ -21,6 +21,21 @@ export interface Agent {
   status: string;
   created_at: string;
   updated_at: string;
+  // New fields for auth
+  claim_code: string | null;
+  user_id: string | null;
+  parent_did: string | null;
+  agent_type: string;
+}
+
+// Generate a random 6-character claim code
+export function generateClaimCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
 }
 
 export interface Verification {
@@ -240,6 +255,79 @@ export const db = {
       .from('rate_limits')
       .delete()
       .lt('window_start', cutoff);
+  },
+
+  // Claim an agent with a claim code (links to user)
+  async claimAgent(claimCode: string, userId: string): Promise<Agent | null> {
+    // Find the agent with this claim code
+    const { data: agent, error: findError } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('claim_code', claimCode)
+      .is('user_id', null) // Only unclaimed agents
+      .single();
+
+    if (findError || !agent) {
+      console.error('Agent not found or already claimed:', findError);
+      return null;
+    }
+
+    // Claim the agent
+    const { data: claimed, error: claimError } = await supabase
+      .from('agents')
+      .update({ user_id: userId })
+      .eq('id', agent.id)
+      .select()
+      .single();
+
+    if (claimError) {
+      console.error('Error claiming agent:', claimError);
+      return null;
+    }
+
+    // Also claim all child agents (sub-agents)
+    await supabase
+      .from('agents')
+      .update({ user_id: userId })
+      .eq('parent_did', agent.did);
+
+    return claimed;
+  },
+
+  // Get all agents for a user (including sub-agents)
+  async getAgentsByUser(userId: string): Promise<Agent[]> {
+    const { data, error } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) return [];
+    return data || [];
+  },
+
+  // Get agent by claim code
+  async getAgentByClaimCode(claimCode: string): Promise<Agent | null> {
+    const { data, error } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('claim_code', claimCode)
+      .single();
+
+    if (error) return null;
+    return data;
+  },
+
+  // Get child agents (sub-agents) of a parent
+  async getChildAgents(parentDid: string): Promise<Agent[]> {
+    const { data, error } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('parent_did', parentDid)
+      .order('created_at', { ascending: false });
+
+    if (error) return [];
+    return data || [];
   }
 };
 
