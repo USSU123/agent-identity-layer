@@ -399,6 +399,59 @@
       flex-wrap: wrap;
     }
 
+    .install-block {
+      margin-top: 48px;
+      text-align: center;
+    }
+
+    .install-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .install-command {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .install-command:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .install-command code {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 18px;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .copy-icon {
+      font-size: 16px;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .install-command:hover .copy-icon {
+      opacity: 1;
+    }
+
+    .install-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
     /* Stats */
     .stats {
       display: grid;
@@ -715,6 +768,15 @@
         <a href="https://agent-identity.onrender.com/dashboard" class="btn btn-primary">View Dashboard →</a>
         <a href="#how-it-works" class="btn btn-secondary">Learn More</a>
       </div>
+
+      <div class="install-block">
+        <div class="install-label">Install the skill</div>
+        <div class="install-command" onclick="copyInstall()">
+          <code>npx clawhub add agentidentity</code>
+          <span class="copy-icon" id="copy-icon">📋</span>
+        </div>
+        <div class="install-hint">Works with any Clawdbot agent</div>
+      </div>
     </section>
 
     <section class="stats">
@@ -839,6 +901,13 @@ curl -X POST https://api.clawid.co/agents/register \
 
   <script>
     const API_BASE = 'https://agent-identity.onrender.com';
+
+    function copyInstall() {
+      navigator.clipboard.writeText('npx clawhub add agentidentity');
+      const icon = document.getElementById('copy-icon');
+      icon.textContent = '✓';
+      setTimeout(() => { icon.textContent = '📋'; }, 2000);
+    }
     
     // Fetch live stats
     fetch(API_BASE + '/agents')
