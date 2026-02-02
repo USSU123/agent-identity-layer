@@ -85,39 +85,40 @@
     .page-title { font-size: 1.75rem; font-weight: 600; margin-bottom: 0.5rem; }
     .page-subtitle { color: var(--text-secondary); font-size: 0.95rem; }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
-    .stat-value { font-size: 2rem; font-weight: 600; margin-bottom: 0.25rem; }
-    .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; }
+    .stat-value { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.15rem; }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); }
 
     .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
-    .table-title { font-weight: 600; font-size: 1rem; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    .table-title { font-weight: 600; font-size: 0.9rem; }
     table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; padding: 0.75rem 1.25rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border); }
-    td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { text-align: left; padding: 0.5rem 1rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+    td { padding: 0.5rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
-    .agent-cell { display: flex; align-items: center; gap: 0.75rem; }
-    .agent-avatar { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
-    .agent-name { font-weight: 500; }
-    .did-cell { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); }
-    .rep-cell { display: flex; align-items: center; gap: 0.5rem; }
-    .rep-bar { width: 60px; height: 6px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; }
-    .rep-fill { height: 100%; background: var(--primary); border-radius: 3px; }
-    .status-badge { display: inline-flex; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 500; }
+    .agent-cell { display: flex; align-items: center; gap: 0.5rem; }
+    .agent-avatar { width: 24px; height: 24px; border-radius: 6px; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; flex-shrink: 0; }
+    .agent-name { font-weight: 500; font-size: 0.85rem; white-space: nowrap; }
+    .did-cell { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-secondary); }
+    .rep-cell { display: flex; align-items: center; gap: 0.4rem; }
+    .rep-bar { width: 50px; height: 4px; background: var(--bg-elevated); border-radius: 2px; overflow: hidden; }
+    .rep-fill { height: 100%; background: var(--primary); border-radius: 2px; }
+    .rep-score { font-size: 0.8rem; }
+    .status-badge { display: inline-flex; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 500; }
     .status-badge.main { background: rgba(59, 130, 246, 0.15); color: var(--info); }
     .status-badge.worker { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
-    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+    .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.9rem; }
 
-    .claim-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
-    .claim-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
-    .claim-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; }
-    .claim-form { display: flex; gap: 0.75rem; }
-    .claim-form input { flex: 1; padding: 0.75rem 1rem; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-family: var(--font-mono); font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; }
+    .claim-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; }
+    .claim-card h3 { font-size: 0.9rem; margin-bottom: 0.35rem; }
+    .claim-card p { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem; }
+    .claim-form { display: flex; gap: 0.5rem; }
+    .claim-form input { flex: 1; max-width: 150px; padding: 0.5rem 0.75rem; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; }
     .claim-form input:focus { outline: none; border-color: var(--primary); }
-    .claim-form button { padding: 0.75rem 1.5rem; background: var(--primary); border: none; border-radius: 8px; color: var(--bg-page); font-weight: 600; cursor: pointer; font-family: var(--font-sans); }
+    .claim-form button { padding: 0.5rem 1rem; background: var(--primary); border: none; border-radius: 6px; color: var(--bg-page); font-weight: 600; cursor: pointer; font-family: var(--font-sans); font-size: 0.85rem; }
     .claim-form button:hover { background: var(--primary-muted); }
-    .claim-result { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; display: none; }
+    .claim-result { margin-top: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.8rem; display: none; }
     .claim-result.success { display: block; background: rgba(34, 197, 94, 0.1); border: 1px solid var(--success); color: var(--success); }
     .claim-result.error { display: block; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); color: var(--error); }
 
