@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent Identity Layer - Portable Identity for AI Agents</title>
+  <title>ClawID - Portable Identity for AI Agents</title>
   <meta name="description" content="The first open, portable identity layer for AI agents. Your reputation follows you. Your identity is yours.">
+  <link rel="canonical" href="https://clawid.co">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
@@ -68,18 +69,22 @@
       align-items: center;
       gap: 12px;
       font-weight: 700;
-      font-size: 20px;
+      font-size: 22px;
+      text-decoration: none;
+      color: var(--text);
     }
 
     .logo-icon {
       width: 40px;
       height: 40px;
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary), #34d399);
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 22px;
+      font-weight: 800;
+      color: #000;
     }
 
     .nav-links {
@@ -175,12 +180,14 @@
       background: linear-gradient(to bottom, #fff 40%, #666 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .hero h1 span {
       background: linear-gradient(135deg, var(--primary), #34d399);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .hero p {
@@ -372,7 +379,7 @@
 
     .code-content {
       padding: 24px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
       font-size: 14px;
       line-height: 1.8;
       overflow-x: auto;
@@ -419,10 +426,23 @@
     footer a {
       color: var(--text-secondary);
       text-decoration: none;
+      margin: 0 12px;
     }
 
     footer a:hover {
       color: var(--primary);
+    }
+
+    .footer-links {
+      margin-bottom: 16px;
+    }
+
+    .footer-social {
+      margin-bottom: 16px;
+    }
+
+    .footer-social a {
+      font-size: 16px;
     }
 
     /* Mobile */
@@ -451,15 +471,15 @@
 
   <div class="container">
     <nav>
-      <div class="logo">
-        <div class="logo-icon">🤖</div>
-        <span>Agent Identity</span>
-      </div>
+      <a href="/" class="logo">
+        <div class="logo-icon">C</div>
+        <span>ClawID</span>
+      </a>
       <div class="nav-links">
         <a href="#features">Features</a>
         <a href="#how-it-works">How It Works</a>
-        <a href="/docs">API Docs</a>
-        <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+        <a href="https://agent-identity.onrender.com/docs">API Docs</a>
+        <a href="https://agent-identity.onrender.com/dashboard" class="btn btn-secondary">Dashboard</a>
       </div>
     </nav>
 
@@ -471,7 +491,7 @@
       <h1>Identity for <span>AI Agents</span></h1>
       <p>The first open, portable identity layer for AI agents. Build reputation across platforms. Verify who you're working with.</p>
       <div class="hero-buttons">
-        <a href="/dashboard" class="btn btn-primary">View Dashboard →</a>
+        <a href="https://agent-identity.onrender.com/dashboard" class="btn btn-primary">View Dashboard →</a>
         <a href="#how-it-works" class="btn btn-secondary">Learn More</a>
       </div>
     </section>
@@ -492,7 +512,7 @@
     </section>
 
     <section class="features" id="features">
-      <h2>Why Agent Identity?</h2>
+      <h2>Why ClawID?</h2>
       <div class="feature-grid">
         <div class="feature-card">
           <div class="feature-icon">🔐</div>
@@ -559,7 +579,7 @@
         </div>
         <div class="code-content">
 <span class="comment"># Register a new agent</span>
-curl -X POST https://agent-identity.onrender.com/agents/register \
+curl -X POST https://api.clawid.co/agents/register \
   -H "Content-Type: application/json" \
   -d '{"name": "my-agent"}'
 
@@ -577,18 +597,30 @@ curl -X POST https://agent-identity.onrender.com/agents/register \
       <div class="cta-card">
         <h2>Ready to give your agent an identity?</h2>
         <p>Join the open beta. Be among the first agents with portable, verified identity.</p>
-        <a href="/dashboard" class="btn btn-primary">Get Started Free →</a>
+        <a href="https://agent-identity.onrender.com/dashboard" class="btn btn-primary">Get Started Free →</a>
       </div>
     </section>
 
     <footer>
-      <p>Built for the agent economy · <a href="/docs">API Docs</a> · <a href="/dashboard">Dashboard</a> · <a href="https://github.com/USSU123/agent-identity-layer">GitHub</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
+      <div class="footer-social">
+        <a href="https://x.com/claw___id">@claw___id</a>
+      </div>
+      <div class="footer-links">
+        <a href="https://agent-identity.onrender.com/docs">API Docs</a>
+        <a href="https://agent-identity.onrender.com/dashboard">Dashboard</a>
+        <a href="https://github.com/USSU123/agent-identity-layer">GitHub</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+      </div>
+      <p>© 2026 ClawID. Built for the agent economy.</p>
     </footer>
   </div>
 
   <script>
+    const API_BASE = 'https://agent-identity.onrender.com';
+    
     // Fetch live stats
-    fetch('/agents')
+    fetch(API_BASE + '/agents')
       .then(r => r.json())
       .then(data => {
         document.getElementById('agent-count').textContent = data.agents?.length || data.pagination?.total || '0';
@@ -598,7 +630,7 @@ curl -X POST https://agent-identity.onrender.com/agents/register \
       });
 
     // Fetch verification count from stats
-    fetch('/agents/stats')
+    fetch(API_BASE + '/agents/stats')
       .then(r => r.json())
       .then(data => {
         document.getElementById('verification-count').textContent = data.total_verifications || '0';
