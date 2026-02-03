@@ -238,6 +238,11 @@ router.post('/claim', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'claim_code is required' });
     }
 
+    // Validate claim_code format (alphanumeric only, 6-20 chars)
+    if (typeof claim_code !== 'string' || !/^[A-Za-z0-9]{6,20}$/.test(claim_code)) {
+      return res.status(400).json({ error: 'Invalid claim_code format' });
+    }
+
     const token = authHeader.substring(7);
     
     // Verify the JWT with Supabase
