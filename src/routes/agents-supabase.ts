@@ -455,7 +455,12 @@ router.get('/verify/:did', async (req: Request, res: Response) => {
  * Get agent public profile by ID or DID (PUBLIC - minimal fields only)
  * For full profile, use /agents/me with agent authentication
  */
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response, next) => {
+  // Skip if this is a /me route (let the specific /me handler catch it)
+  if (req.params.id === 'me') {
+    return next();
+  }
+  
   try {
     const { id } = req.params;
     const isDID = id.startsWith('did:');
