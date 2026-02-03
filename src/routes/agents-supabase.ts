@@ -769,14 +769,16 @@ router.get('/me/subagents', async (req: Request, res: Response) => {
     }
 
     // Get subagents where parent_did matches this agent
+    // Note: parent_did is stored in metadata JSON, not as top-level column
     const { data: subagents, error: fetchError } = await supabase
       .from('agents')
       .select('*')
-      .eq('parent_did', agent.did)
+      .contains('metadata', { parent_did: agent.did })
       .order('created_at', { ascending: false });
 
     if (fetchError) {
-      return res.status(500).json({ error: 'Failed to fetch subagents' });
+      console.error('Subagents fetch error:', fetchError);
+      return res.status(500).json({ error: 'Failed to fetch subagents', details: fetchError.message });
     }
 
     // Get reputation for each subagent
