@@ -223,19 +223,19 @@ router.post('/register', async (req: Request, res: Response) => {
  */
 router.post('/claim', async (req: Request, res: Response) => {
   try {
-    const { claim_code } = req.body;
-    
-    if (!claim_code) {
-      return res.status(400).json({ error: 'claim_code is required' });
-    }
-
-    // Get user from Authorization header (Supabase JWT)
+    // Check auth FIRST before validating body
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ 
         error: 'Authorization required',
         message: 'Sign in at clawid.co and provide your access token'
       });
+    }
+
+    const { claim_code } = req.body;
+    
+    if (!claim_code) {
+      return res.status(400).json({ error: 'claim_code is required' });
     }
 
     const token = authHeader.substring(7);
@@ -452,7 +452,8 @@ router.get('/verify/:did', async (req: Request, res: Response) => {
 
 /**
  * GET /agents/:id
- * Get agent profile by ID or DID
+ * Get agent public profile by ID or DID (PUBLIC - minimal fields only)
+ * For full profile, use /agents/me with agent authentication
  */
 router.get('/:id', async (req: Request, res: Response) => {
   try {
@@ -467,14 +468,17 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Agent not found' });
     }
 
-    const didDocument = createDIDDocument(agent.did, agent.public_key, agent.owner_id || undefined);
     const { total } = await db.getReputationScore(agent.id);
-    const reputation = 3.0 + (total / 100);
+    const reputation = Math.round(Math.max(0, Math.min(5, 3.0 + (total / 100))) * 100) / 100;
 
+    // Return only public fields
     res.json({
-      ...agent,
-      reputation: Math.round(Math.max(0, Math.min(5, reputation)) * 100) / 100,
-      did_document: didDocument
+      did: agent.did,
+      name: agent.name,
+      verified: agent.status === 'active',
+      reputation,
+      registered_at: agent.created_at,
+      note: 'Public profile shows minimal fields. Use /agents/me with agent auth for full profile.'
     });
   } catch (error) {
     console.error('Get agent error:', error);
@@ -678,11 +682,142 @@ router.post('/:id/work-report', async (req: Request, res: Response) => {
 });
 
 /**
+ * Helper: Verify agent signature for agent-authenticated endpoints
+ * Agent must provide X-Agent-DID header and X-Agent-Signature header
+ * Signature is over the current timestamp (within 5 min window)
+ */
+async function verifyAgentAuth(req: Request): Promise<{ agent: any; error?: string }> {
+  const did = req.headers['x-agent-did'] as string;
+  const signature = req.headers['x-agent-signature'] as string;
+  const timestamp = req.headers['x-agent-timestamp'] as string;
+
+  if (!did || !signature || !timestamp) {
+    return { agent: null, error: 'Missing auth headers: X-Agent-DID, X-Agent-Signature, X-Agent-Timestamp required' };
+  }
+
+  // Check timestamp is within 5 minutes
+  const ts = parseInt(timestamp);
+  const now = Date.now();
+  if (isNaN(ts) || Math.abs(now - ts) > 5 * 60 * 1000) {
+    return { agent: null, error: 'Timestamp expired or invalid (must be within 5 minutes)' };
+  }
+
+  const agent = await db.getAgentByDid(did);
+  if (!agent) {
+    return { agent: null, error: 'Agent not found' };
+  }
+
+  // Verify signature over timestamp
+  const isValid = verify(timestamp, signature, agent.public_key);
+  if (!isValid) {
+    return { agent: null, error: 'Invalid signature' };
+  }
+
+  return { agent };
+}
+
+/**
+ * GET /agents/me
+ * Get own agent profile (agent-authenticated via signature)
+ * Headers: X-Agent-DID, X-Agent-Signature, X-Agent-Timestamp
+ */
+router.get('/me', async (req: Request, res: Response) => {
+  try {
+    const { agent, error } = await verifyAgentAuth(req);
+    
+    if (error || !agent) {
+      return res.status(401).json({ error: error || 'Authentication failed' });
+    }
+
+    const { total } = await db.getReputationScore(agent.id);
+    const reputation = Math.round((3.0 + total / 100) * 100) / 100;
+
+    res.json({
+      id: agent.id,
+      did: agent.did,
+      name: agent.name,
+      public_key: agent.public_key,
+      agent_type: agent.agent_type,
+      parent_did: agent.parent_did,
+      status: agent.status,
+      reputation,
+      metadata: agent.metadata,
+      created_at: agent.created_at
+    });
+  } catch (error) {
+    console.error('Get me error:', error);
+    res.status(500).json({ error: 'Failed to fetch agent profile' });
+  }
+});
+
+/**
+ * GET /agents/me/subagents
+ * Get own subagents (agent-authenticated via signature)
+ * Only returns agents where parent_did matches the authenticated agent's DID
+ */
+router.get('/me/subagents', async (req: Request, res: Response) => {
+  try {
+    const { agent, error } = await verifyAgentAuth(req);
+    
+    if (error || !agent) {
+      return res.status(401).json({ error: error || 'Authentication failed' });
+    }
+
+    // Get subagents where parent_did matches this agent
+    const { data: subagents, error: fetchError } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('parent_did', agent.did)
+      .order('created_at', { ascending: false });
+
+    if (fetchError) {
+      return res.status(500).json({ error: 'Failed to fetch subagents' });
+    }
+
+    // Get reputation for each subagent
+    const subagentsWithRep = await Promise.all((subagents || []).map(async (sub: any) => {
+      const { total } = await db.getReputationScore(sub.id);
+      return {
+        id: sub.id,
+        did: sub.did,
+        name: sub.name,
+        agent_type: sub.agent_type,
+        status: sub.status,
+        reputation: Math.round((3.0 + total / 100) * 100) / 100,
+        metadata: sub.metadata,
+        created_at: sub.created_at
+      };
+    }));
+
+    res.json({
+      parent_did: agent.did,
+      parent_name: agent.name,
+      subagents: subagentsWithRep,
+      count: subagentsWithRep.length
+    });
+  } catch (error) {
+    console.error('Get subagents error:', error);
+    res.status(500).json({ error: 'Failed to fetch subagents' });
+  }
+});
+
+/**
  * GET /agents/:id/workers
  * List all workers under this agent
+ * DEPRECATED: Use /agents/me/subagents with agent auth instead
+ * This endpoint now requires agent authentication
  */
 router.get('/:id/workers', async (req: Request, res: Response) => {
   try {
+    const { agent: authAgent, error: authError } = await verifyAgentAuth(req);
+    
+    if (authError || !authAgent) {
+      return res.status(401).json({ 
+        error: authError || 'Authentication failed',
+        message: 'This endpoint requires agent authentication. Use /agents/me/subagents instead.'
+      });
+    }
+
     const { id } = req.params;
     const isDID = id.startsWith('did:');
     
@@ -694,11 +829,19 @@ router.get('/:id/workers', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Agent not found' });
     }
 
-    // Find all agents where metadata.parent_did matches this agent
+    // Only allow if authenticated agent is the same as requested agent
+    if (authAgent.did !== agent.did) {
+      return res.status(403).json({ 
+        error: 'Forbidden',
+        message: 'You can only view your own workers'
+      });
+    }
+
+    // Find all agents where parent_did matches this agent
     const { data: workers, error } = await supabase
       .from('agents')
       .select('*')
-      .contains('metadata', { parent_did: agent.did });
+      .eq('parent_did', agent.did);
 
     if (error) {
       return res.status(500).json({ error: 'Failed to fetch workers' });
@@ -708,8 +851,13 @@ router.get('/:id/workers', async (req: Request, res: Response) => {
     const workersWithRep = await Promise.all((workers || []).map(async (worker: any) => {
       const { total } = await db.getReputationScore(worker.id);
       return {
-        ...worker,
-        reputation: Math.round((3.0 + total / 100) * 100) / 100
+        id: worker.id,
+        did: worker.did,
+        name: worker.name,
+        agent_type: worker.agent_type,
+        status: worker.status,
+        reputation: Math.round((3.0 + total / 100) * 100) / 100,
+        created_at: worker.created_at
       };
     }));
 
@@ -766,7 +914,9 @@ router.get('/stats', async (req: Request, res: Response) => {
 
 /**
  * GET /agents
- * List all agents with pagination
+ * List all agents with pagination (PUBLIC - minimal fields only)
+ * Returns only: did, name, verified status, reputation
+ * For full profile, agents must use /agents/me with authentication
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -778,31 +928,34 @@ router.get('/', async (req: Request, res: Response) => {
       .from('agents')
       .select('*', { count: 'exact', head: true });
 
-    // Get paginated agents
+    // Get paginated agents (only select needed fields)
     const { data: agents, error } = await supabase
       .from('agents')
-      .select('*')
+      .select('id, did, name, status, created_at')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) throw error;
     
-    // Get reputation for each agent
-    const agentsWithRep = await Promise.all((agents || []).map(async (agent) => {
+    // Return only public fields
+    const publicAgents = await Promise.all((agents || []).map(async (agent) => {
       const { total } = await db.getReputationScore(agent.id);
       return {
-        ...agent,
+        did: agent.did,
+        name: agent.name,
+        verified: agent.status === 'active',
         reputation: Math.round((3.0 + total / 100) * 100) / 100
       };
     }));
 
     res.json({
-      agents: agentsWithRep,
+      agents: publicAgents,
       pagination: {
         total: totalCount || 0,
         limit,
         offset
-      }
+      },
+      note: 'Public listing shows minimal fields. Use /agents/me with agent auth for full profile.'
     });
   } catch (error) {
     console.error('List agents error:', error);
